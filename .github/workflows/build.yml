@@ -1,0 +1,54 @@
+name: Build
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  package:
+    name: nexus-linkext-package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validate JSON files
+        run: python -c "import json; json.load(open('NexusLinkExt.uplugin'))"
+
+      - name: Validate VERSION format
+        run: |
+          python -c "
+          import re, sys
+          v = open('VERSION').read().strip()
+          if not re.fullmatch(r'\d+\.\d+\.\d+(\S*)?', v):
+              print(f'[ERROR] Invalid VERSION: {v}', file=sys.stderr); sys.exit(1)
+          print(f'[OK] VERSION: {v}')
+          "
+
+      - name: Validate CHANGELOG structure
+        run: |
+          python -c "
+          import re, sys
+          text = open('CHANGELOG.md', encoding='utf-8').read()
+          sections = re.findall(r'^## \[([^\]]+)\]', text, re.MULTILINE)
+          if not sections:
+              print('[ERROR] CHANGELOG.md has no sections', file=sys.stderr); sys.exit(1)
+          if 'Unreleased' not in sections:
+              print('[ERROR] CHANGELOG.md missing [Unreleased] section', file=sys.stderr); sys.exit(1)
+          released = [s for s in sections if s != 'Unreleased']
+          print(f'[OK] CHANGELOG.md: {len(released)} released versions, [Unreleased] present')
+          "
+
+      - name: Package zip (smoke)
+        run: python scripts/build_unreal.py --version 0.0.0-ci --output /tmp/nexuslinkext-release
+
+      - name: List artifact
+        run: ls -la /tmp/nexuslinkext-release

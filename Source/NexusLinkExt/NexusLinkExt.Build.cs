@@ -12,7 +12,7 @@ public class NexusLinkExt : ModuleRules
 	public NexusLinkExt(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PublicDependencyModuleNames.AddRange(new[] { "Core", "NexusLink", "Json", "JsonUtilities" });
-		PrivateDependencyModuleNames.AddRange(new[] { "CoreUObject", "Engine" });
+		PrivateDependencyModuleNames.AddRange(new[] { "CoreUObject", "Engine", "Projects" });
 
 		string ProjectRoot = NexusLinkOptionalPlugins.FindProjectRoot(ModuleDirectory);
 		var SearchDirs = NexusLinkOptionalPlugins.CollectPluginSearchDirs(ProjectRoot, this);

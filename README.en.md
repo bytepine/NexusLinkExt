@@ -19,6 +19,8 @@ Depends on [NexusLink](https://github.com/bytepine/NexusLink) and [UnLua](https:
 
 The sample [NexusUnreal](https://github.com/bytepine/NexusUnreal) mounts it as a git submodule (`Plugins/NexusLinkExt`). Clone that project with `--recurse-submodules`.
 
+Release zips are on [GitHub Releases](https://github.com/bytepine/NexusLinkExt/releases); the archive root is `NexusLinkExt/`. The source `VersionName` stays `0.0.0`. The version is the `VERSION` file and the `nexus-linkext-v*` tag. See [CONTRIBUTING.md](CONTRIBUTING.md).
+
 Runtime Capabilities need PIE or a standalone Game, with UnLua ready. `hotreload_runtime_lua` requires UnLua 2.x (1.x returns an error).
 
 `eval_runtime_lua` and `dofile_runtime_lua` carry the `dangerous` tag and are disabled by default. Enable them the same way as NexusLink's `exec_command`: the Dangerous Capability access mode in Editor Preferences, a session checkbox, or `-NexusEnableDangerousCaps`.
@@ -51,7 +53,18 @@ Do not send legacy keys. Script paths use `scriptPath` (relative to `Content/Scr
 | `get_asset_lua_binding` | Resolve the UnLua module bound to a Blueprint; returns `bound` / `fileExists` |
 | `manage_asset_lua_binding` | `action=bind\|unbind` |
 
-Parameter schemas come from `search_capabilities`. The sample project's L1 suite is `Plugins/NexusLinkExtTestSuite` (Automation prefix `NexusLinkExt.`) and is not part of this repo.
+Parameter schemas come from `search_capabilities`.
+
+## Authoring
+
+New Capabilities still follow [CapabilitySpec](https://github.com/bytepine/NexusLink/blob/master/Resources/CapabilitySpec.md) §2.1.1 for the base class. Optional-plugin Capabilities belong in this repo, not in NexusLink.
+
+- Runtime code goes in `NexusLinkExt`; editor assets go in `NexusLinkExtEditor`. New domains use `Private/Capabilities/<Domain>/`. Do not add another module.
+- End the `.cpp` with `REGISTER_MCP_CAPABILITY`. Define `WITH_*` only in the module that first links that optional plugin.
+- A dangerous Capability adds `dangerous` and `write` to `Out.Tags`. NexusLink treats that tag as the dangerous-capability switch. Do not register the name inside NexusLink.
+- When the capability surface changes, edit `Resources/InitializeInstructions.SearchMode.md` and `InitializeInstructions.MultiTool.md`. Startup registers both fragments; shutdown unregisters them. Do not list these Capabilities in NexusLink's own handshake text.
+
+The sample project's L1 suite is `Plugins/NexusLinkExtTestSuite` (Automation prefix `NexusLinkExt.`) and is not part of this repo.
 
 ## License
 

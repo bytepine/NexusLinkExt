@@ -19,6 +19,8 @@ English: [README.en.md](README.en.md).
 
 示例工程 [NexusUnreal](https://github.com/bytepine/NexusUnreal) 以 git 子模块挂载（`Plugins/NexusLinkExt`）。克隆示例工程时加 `--recurse-submodules`。
 
+发布包在 [GitHub Releases](https://github.com/bytepine/NexusLinkExt/releases)，zip 内顶层为 `NexusLinkExt/`。源码 `VersionName` 保持 `0.0.0`，版本号以 `VERSION` 与 tag `nexus-linkext-v*` 为准。发版步骤见 [CONTRIBUTING.md](CONTRIBUTING.md)。
+
 运行时 Capability 需要 PIE 或独立 Game，且 UnLua 已就绪。`hotreload_runtime_lua` 仅 UnLua 2.x（1.x 返回错误）。
 
 `eval_runtime_lua` 与 `dofile_runtime_lua` 带 `dangerous` 标签，默认禁用。开闸方式与 NexusLink 的 `exec_command` 相同：Editor Preferences 里的危险 Capability 访问模式、会话勾选，或启动参数 `-NexusEnableDangerousCaps`。
@@ -51,7 +53,18 @@ English: [README.en.md](README.en.md).
 | `get_asset_lua_binding` | 解析蓝图绑定的 UnLua 模块，返回 `bound` / `fileExists` |
 | `manage_asset_lua_binding` | `action=bind\|unbind` |
 
-参数以 `search_capabilities` 返回的 schema 为准。示例工程的 L1 在 `Plugins/NexusLinkExtTestSuite`（Automation 前缀 `NexusLinkExt.`），不随本仓库分发。
+参数以 `search_capabilities` 返回的 schema 为准。
+
+## 编写
+
+新 Capability 仍遵守 [CapabilitySpec](https://github.com/bytepine/NexusLink/blob/master/Resources/CapabilitySpec.md) §2.1.1 的基类选择。可选插件的 cap 写在本仓库，不写进 NexusLink。
+
+- 运行时放 `NexusLinkExt`，编辑器资产放 `NexusLinkExtEditor`。新域用 `Private/Capabilities/<域>/`，不要再加模块
+- `.cpp` 末尾 `REGISTER_MCP_CAPABILITY`。`WITH_*` 只在首次链接该可选插件的模块里定义
+- 危险 cap 在 `Out.Tags` 加上 `dangerous` 和 `write`。NexusLink 按这个标签做默认禁用和确认，不用登记名字
+- 改了能力面就改 `Resources/InitializeInstructions.SearchMode.md` 与 `InitializeInstructions.MultiTool.md`。模块启动时注册这两段，关闭时卸掉。不要改 NexusLink 的握手正文来列举这里的 cap
+
+示例工程的 L1 在 `Plugins/NexusLinkExtTestSuite`（Automation 前缀 `NexusLinkExt.`），不随本仓库分发。
 
 ## License
 
