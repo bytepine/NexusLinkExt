@@ -1,0 +1,51 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0",
+	"FriendlyName": "NexusLinkExt",
+	"Description": "NexusLink capabilities for optional plugins. UnLua lives in NexusLinkExt_UnLua (Runtime) and NexusLinkExtEditor_UnLua (Editor).",
+	"Category": "Other",
+	"CreatedBy": "byteyang",
+	"CreatedByURL": "",
+	"DocsURL": "",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"CanContainContent": true,
+	"IsBetaVersion": false,
+	"IsExperimentalVersion": false,
+	"Installed": false,
+	"Modules": [
+		{
+			"Name": "NexusLinkExt",
+			"Type": "Runtime",
+			"LoadingPhase": "Default",
+			"PlatformAllowList": [ "Win64", "Mac" ],
+			"WhitelistPlatforms": [ "Win64", "Mac" ]
+		},
+		{
+			"Name": "NexusLinkExt_UnLua",
+			"Type": "Runtime",
+			"LoadingPhase": "Default",
+			"PlatformAllowList": [ "Win64", "Mac" ],
+			"WhitelistPlatforms": [ "Win64", "Mac" ]
+		},
+		{
+			"Name": "NexusLinkExtEditor_UnLua",
+			"Type": "Editor",
+			"LoadingPhase": "Default",
+			"PlatformAllowList": [ "Win64", "Mac" ],
+			"WhitelistPlatforms": [ "Win64", "Mac" ]
+		}
+	],
+	"Plugins": [
+		{
+			"Name": "NexusLink",
+			"Enabled": true
+		},
+		{
+			"Name": "UnLua",
+			"Enabled": false,
+			"Optional": true
+		}
+	]
+}
