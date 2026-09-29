@@ -9,4 +9,5 @@
 
 ### Added
 
-- feat(plugin): `NexusLinkExt_UnLua`（Runtime）与 `NexusLinkExtEditor_UnLua`（Editor），承接 UnLua Capability 与 `FNexusLuaUtils`
+- feat(plugin): `NexusLinkExt`（Runtime）与 `NexusLinkExtEditor`（Editor），承接 UnLua Capability 与 `FNexusLuaUtils`
+- docs: README 列出 14 个 UnLua Capability、安装方式与危险 cap 说明，并链回 NexusLink。示例工程 L1 在 `NexusLinkExtTestSuite`，不在本仓

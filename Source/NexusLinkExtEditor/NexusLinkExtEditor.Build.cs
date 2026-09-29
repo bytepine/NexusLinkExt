@@ -3,16 +3,17 @@
 using UnrealBuildTool;
 
 /// <summary>
-/// UnLua 编辑器 Capability（get/manage_asset_lua_binding）。
-/// WITH_UNLUA / UNLUA_VERSION_MAJOR 由 NexusLinkExt_UnLua 传入，这里只补链 UnLua，避免宏重定义。
+/// NexusLinkExtEditor（Editor）：可选插件的编辑器 Capability。当前是 UnLua 蓝图绑定
+/// （get/manage_asset_lua_binding）。WITH_UNLUA / UNLUA_VERSION_MAJOR 由 NexusLinkExt 传入，
+/// 这里只补链 UnLua，避免宏重定义。
 /// </summary>
-public class NexusLinkExtEditor_UnLua : ModuleRules
+public class NexusLinkExtEditor : ModuleRules
 {
-	public NexusLinkExtEditor_UnLua(ReadOnlyTargetRules Target) : base(Target)
+	public NexusLinkExtEditor(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PublicDependencyModuleNames.AddRange(new[]
 		{
-			"Core", "NexusLink", "NexusLinkExt_UnLua", "Json", "JsonUtilities",
+			"Core", "NexusLink", "NexusLinkExt", "Json", "JsonUtilities",
 		});
 		PrivateDependencyModuleNames.AddRange(new[]
 		{

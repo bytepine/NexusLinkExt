@@ -19,7 +19,7 @@
 #endif
 
 /** UnLua 共用静态工具（环境、栈、路径解析、table 枚举等）。 */
-class NEXUSLINKEXT_UNLUA_API FNexusLuaUtils
+class NEXUSLINKEXT_API FNexusLuaUtils
 {
 public:
 #if UNLUA_VERSION_MAJOR >= 2
