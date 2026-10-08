@@ -7,6 +7,8 @@
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-10-08
+
 ### Added
 
 - feat(plugin): `NexusLinkExt`（Runtime）与 `NexusLinkExtEditor`（Editor），承接 UnLua Capability 与 `FNexusLuaUtils`
