@@ -7,6 +7,10 @@
 
 ## [Unreleased]
 
+## [1.0.1-beta.1] - 2026-10-12
+
+> ⚠️ Pre-release，非生产环境使用。
+
 ### Fixed
 
 - fix(mcp): `manage_asset_lua_binding` 在蓝图为空时写入 error 并返回，不再把空指针交给编辑器接口
