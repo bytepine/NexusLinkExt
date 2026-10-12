@@ -35,6 +35,11 @@ FCapabilityResult FHotReloadRuntimeLuaCapability::Execute(const TSharedPtr<FJson
 	}
 
 	lua_State* L = LuaEnv->GetMainState();
+	if (!L)
+	{
+		EmitError(R.Entries, {}, TEXT("lua_State is null"));
+		return R;
+	}
 	const int32 MemBeforeKB = lua_gc(L, LUA_GCCOUNT, 0);
 	LuaEnv->HotReload();
 	const int32 MemAfterKB = lua_gc(L, LUA_GCCOUNT, 0);

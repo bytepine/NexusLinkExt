@@ -7,6 +7,11 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- fix(mcp): `manage_asset_lua_binding` 在蓝图为空时写入 error 并返回，不再把空指针交给编辑器接口
+- fix(mcp): `hotreload_runtime_lua` 在 `GetMainState` 为空时返回 error，不再把空 `lua_State` 交给 `lua_gc`
+
 ## [1.0.0] - 2026-10-08
 
 ### Added

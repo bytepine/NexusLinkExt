@@ -70,6 +70,11 @@ static const FName UnLuaIfaceName(TEXT("UnLuaInterface"));
 static void HandleLua_Bind(const TSharedPtr<FJsonObject>& Op, FNexusActionContext& Ctx)
 {
 	UBlueprint* BP = LuaBindFrom(Ctx);
+	if (!BP)
+	{
+		Ctx.Entry->SetStringField(TEXT("error"), TEXT("Blueprint is null"));
+		return;
+	}
 #if NX_UE_HAS_BP_INTERFACE_ASSET_PATH
 	FBlueprintEditorUtils::ImplementNewInterface(BP, FTopLevelAssetPath(TEXT("/Script/UnLua"), TEXT("UnLuaInterface")));
 #else
@@ -86,6 +91,11 @@ static void HandleLua_Unbind(const TSharedPtr<FJsonObject>& Op, FNexusActionCont
 {
 	(void)Op;
 	UBlueprint* BP = LuaBindFrom(Ctx);
+	if (!BP)
+	{
+		Ctx.Entry->SetStringField(TEXT("error"), TEXT("Blueprint is null"));
+		return;
+	}
 #if NX_UE_HAS_BP_INTERFACE_ASSET_PATH
 	FBlueprintEditorUtils::RemoveInterface(BP, FTopLevelAssetPath(TEXT("/Script/UnLua"), TEXT("UnLuaInterface")));
 #else
