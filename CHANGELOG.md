@@ -7,6 +7,13 @@
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-10-13
+
+### Fixed
+
+- `manage_asset_lua_binding` 在蓝图为空时返回 error
+- `hotreload_runtime_lua` 在 `GetMainState` 为空时返回 error
+
 ## [1.0.1-beta.1] - 2026-10-12
 
 > ⚠️ Pre-release，非生产环境使用。
