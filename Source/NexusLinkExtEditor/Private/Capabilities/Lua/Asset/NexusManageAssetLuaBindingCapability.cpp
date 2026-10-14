@@ -18,22 +18,22 @@
 #endif
 #endif
 
-void FManageAssetLuaBindingCapability::BuildDefinition(FNexusCapabilityDefinition& Out) const
+void FNexusManageAssetLuaBindingCapability::BuildDefinition(FNexusCapabilityDefinition& Out) const
 {
-	Out.Name = TEXT("manage_asset_lua_binding");
-	Out.Description = TEXT("Bind/unbind BP UnLua interface. action=bind|unbind.");
+	Out.Name = TEXT("ManageAssetLuaBinding");
+	Out.Description = TEXT("Bind/unbind BP UnLua interface. Action=bind|unbind.");
 	TSharedPtr<FJsonObject> OpSchema = FNexusSchema::Object()
-		.Required(TEXT("action"), FNexusSchema::Enum(TEXT("Action"), { TEXT("bind"), TEXT("unbind") }))
-		.Prop(TEXT("moduleName"), FNexusSchema::Str(TEXT("Lua module name (bind; optional, defaults from asset path)")))
+		.Required(TEXT("Action"), FNexusSchema::Enum(TEXT("Action"), { TEXT("Bind"), TEXT("Unbind") }))
+		.Prop(TEXT("ModuleName"), FNexusSchema::Str(TEXT("Lua module name (bind; optional, defaults from asset path)")))
 		.Build();
 	Out.InputSchema = FNexusSchema::Object()
-		.Required(TEXT("assetPath"), FNexusSchema::Str(TEXT("Blueprint asset path")))
-		.Required(TEXT("operations"), FNexusSchema::ArrayOf(TEXT("Operation list"), OpSchema.ToSharedRef()))
+		.Required(TEXT("AssetPath"), FNexusSchema::Str(TEXT("Blueprint asset path")))
+		.Required(TEXT("Operations"), FNexusSchema::ArrayOf(TEXT("Operation list"), OpSchema.ToSharedRef()))
 		.Build();
 	Out.Tags = { FNexusMcpTags::Write, FNexusMcpTags::Blueprint };
 	Out.ExtraSearchKeywords = { TEXT("unlua"), TEXT("binding"), TEXT("module") };
-	Out.RelatedCapabilities = { TEXT("get_asset_lua_binding"), TEXT("get_runtime_lua_object") };
-	Out.Prerequisites = { TEXT("unlua"), TEXT("editor_only") };
+	Out.RelatedCapabilities = { TEXT("GetAssetLuaBinding"), TEXT("GetRuntimeLuaObject") };
+	Out.Prerequisites = { TEXT("unlua"), TEXT("EditorOnly") };
 	Out.WhenToUse = TEXT("Implement/remove UnLuaInterface on BP; do not set_* non-property");
 }
 
@@ -72,7 +72,7 @@ static void HandleLua_Bind(const TSharedPtr<FJsonObject>& Op, FNexusActionContex
 	UBlueprint* BP = LuaBindFrom(Ctx);
 	if (!BP)
 	{
-		Ctx.Entry->SetStringField(TEXT("error"), TEXT("Blueprint is null"));
+		Ctx.Entry->SetStringField(TEXT("Error"), TEXT("Blueprint is null"));
 		return;
 	}
 #if NX_UE_HAS_BP_INTERFACE_ASSET_PATH
@@ -81,9 +81,9 @@ static void HandleLua_Bind(const TSharedPtr<FJsonObject>& Op, FNexusActionContex
 	FBlueprintEditorUtils::ImplementNewInterface(BP, UnLuaIfaceName);
 #endif
 	FString ModuleName;
-	Op->TryGetStringField(TEXT("moduleName"), ModuleName);
-	if (!ModuleName.IsEmpty()) Ctx.Entry->SetStringField(TEXT("moduleName"), ModuleName);
-	Ctx.Entry->SetStringField(TEXT("note"), TEXT("UnLuaInterface requested; GetModuleName must return module in graph"));
+	Op->TryGetStringField(TEXT("ModuleName"), ModuleName);
+	if (!ModuleName.IsEmpty()) Ctx.Entry->SetStringField(TEXT("ModuleName"), ModuleName);
+	Ctx.Entry->SetStringField(TEXT("Note"), TEXT("UnLuaInterface requested; GetModuleName must return module in graph"));
 	MarkLuaBindDirty(Ctx);
 }
 
@@ -93,7 +93,7 @@ static void HandleLua_Unbind(const TSharedPtr<FJsonObject>& Op, FNexusActionCont
 	UBlueprint* BP = LuaBindFrom(Ctx);
 	if (!BP)
 	{
-		Ctx.Entry->SetStringField(TEXT("error"), TEXT("Blueprint is null"));
+		Ctx.Entry->SetStringField(TEXT("Error"), TEXT("Blueprint is null"));
 		return;
 	}
 #if NX_UE_HAS_BP_INTERFACE_ASSET_PATH
@@ -101,12 +101,12 @@ static void HandleLua_Unbind(const TSharedPtr<FJsonObject>& Op, FNexusActionCont
 #else
 	FBlueprintEditorUtils::RemoveInterface(BP, UnLuaIfaceName);
 #endif
-	Ctx.Entry->SetBoolField(TEXT("unbound"), true);
+	Ctx.Entry->SetBoolField(TEXT("bUnbound"), true);
 	MarkLuaBindDirty(Ctx);
 }
 #endif // WITH_EDITOR
 
-bool FManageAssetLuaBindingCapability::PrepareTarget(
+bool FNexusManageAssetLuaBindingCapability::PrepareTarget(
 	const TSharedPtr<FJsonObject>& Args,
 	TSharedPtr<FJsonObject>& Entry,
 	void*& OutTarget,
@@ -116,11 +116,11 @@ bool FManageAssetLuaBindingCapability::PrepareTarget(
 	(void)Args;
 	(void)Entry;
 	(void)OutTarget;
-	OutError = TEXT("manage_asset_lua_binding only available in editor builds");
+	OutError = TEXT("ManageAssetLuaBinding only available in editor builds");
 	return false;
 #else
-	const FString AssetPath = FNexusArgs(Args).Str(TEXT("assetPath"));
-	Entry->SetStringField(TEXT("path"), AssetPath);
+	const FString AssetPath = FNexusArgs(Args).Str(TEXT("AssetPath"));
+	Entry->SetStringField(TEXT("Path"), AssetPath);
 	UBlueprint* BP = FNexusAssetUtils::LoadAssetWithFallback<UBlueprint>(AssetPath);
 	if (!BP)
 	{
@@ -134,7 +134,7 @@ bool FManageAssetLuaBindingCapability::PrepareTarget(
 #endif
 }
 
-void FManageAssetLuaBindingCapability::FinalizeTarget(void* Target) const
+void FNexusManageAssetLuaBindingCapability::FinalizeTarget(void* Target) const
 {
 #if WITH_EDITOR
 	FLuaBindingActionState* State = static_cast<FLuaBindingActionState*>(Target);
@@ -149,16 +149,16 @@ void FManageAssetLuaBindingCapability::FinalizeTarget(void* Target) const
 #endif
 }
 
-void FManageAssetLuaBindingCapability::RegisterActions(TMap<FString, FNexusActionHandler>& OutHandlers) const
+void FNexusManageAssetLuaBindingCapability::RegisterActions(TMap<FString, FNexusActionHandler>& OutHandlers) const
 {
 #if WITH_EDITOR
-	OutHandlers.Add(TEXT("bind"),   &HandleLua_Bind);
-	OutHandlers.Add(TEXT("unbind"), &HandleLua_Unbind);
+	OutHandlers.Add(TEXT("Bind"),   &HandleLua_Bind);
+	OutHandlers.Add(TEXT("Unbind"), &HandleLua_Unbind);
 #else
 	(void)OutHandlers;
 #endif
 }
 
-REGISTER_MCP_CAPABILITY(FManageAssetLuaBindingCapability)
+REGISTER_MCP_CAPABILITY(FNexusManageAssetLuaBindingCapability)
 
 #endif

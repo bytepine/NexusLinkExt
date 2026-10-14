@@ -172,14 +172,14 @@ public:
 			if (OutKeys.Num() < Limit)
 			{
 				TSharedRef<FJsonObject> Entry = MakeShared<FJsonObject>();
-				Entry->SetStringField(TEXT("key"), Key);
+				Entry->SetStringField(TEXT("Key"), Key);
 				int VT = lua_type(L, -1);
 				Entry->SetStringField(TEXT("type"), UTF8_TO_TCHAR(lua_typename(L, VT)));
 				switch (VT)
 				{
-				case LUA_TSTRING:  Entry->SetStringField(TEXT("value"), UTF8_TO_TCHAR(lua_tostring(L, -1))); break;
-				case LUA_TNUMBER:  Entry->SetNumberField(TEXT("value"), lua_tonumber(L, -1)); break;
-				case LUA_TBOOLEAN: Entry->SetBoolField(TEXT("value"), lua_toboolean(L, -1) != 0); break;
+				case LUA_TSTRING:  Entry->SetStringField(TEXT("Value"), UTF8_TO_TCHAR(lua_tostring(L, -1))); break;
+				case LUA_TNUMBER:  Entry->SetNumberField(TEXT("Value"), lua_tonumber(L, -1)); break;
+				case LUA_TBOOLEAN: Entry->SetBoolField(TEXT("Value"), lua_toboolean(L, -1) != 0); break;
 				default: break;
 				}
 				OutKeys.Add(MakeShared<FJsonValueObject>(Entry));

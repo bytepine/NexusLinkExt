@@ -39,23 +39,23 @@ static bool TryPushObjectLuaTable(lua_State* L, UObject* Object)
 	return false;
 }
 
-void FGetRuntimeLuaObjectCapability::BuildDefinition(FNexusCapabilityDefinition& Out) const
+void FNexusGetRuntimeLuaObjectCapability::BuildDefinition(FNexusCapabilityDefinition& Out) const
 {
-	Out.Name = TEXT("get_runtime_lua_object");
+	Out.Name = TEXT("GetRuntimeLuaObject");
 	Out.Description = TEXT("Read UnLua-bound Actor/UObject instance Lua table.");
 	Out.InputSchema = FNexusSchema::Object()
-		.Required(TEXT("actorName"), FNexusSchema::Str(TEXT("Runtime Actor name")))
-		.Prop(TEXT("luaPath"),       FNexusSchema::Str(TEXT("Dot-separated sub-path in Lua table")))
-		.Prop(TEXT("nameFilter"),    FNexusSchema::Str(TEXT("Key filter; /regex/, ^prefix, suffix$")))
-		.Prop(TEXT("limit"),         FNexusSchema::Int(TEXT("Max returned keys"), 100, 1, 500))
+		.Required(TEXT("ActorName"), FNexusSchema::Str(TEXT("Runtime Actor name")))
+		.Prop(TEXT("LuaPath"),       FNexusSchema::Str(TEXT("Dot-separated sub-path in Lua table")))
+		.Prop(TEXT("NameFilter"),    FNexusSchema::Str(TEXT("Key filter; /regex/, ^prefix, suffix$")))
+		.Prop(TEXT("Limit"),         FNexusSchema::Int(TEXT("Max returned keys"), 100, 1, 500))
 		.Build();
 	Out.Tags = {FNexusMcpTags::Readonly, FNexusMcpTags::Runtime };
-	Out.ExtraSearchKeywords = { TEXT("instance"), TEXT("actor"), TEXT("fields"), TEXT("self"), TEXT("data") };
-	Out.RelatedCapabilities = { TEXT("get_runtime_lua_env"), TEXT("get_asset_lua_binding") };
-	Out.Prerequisites = { TEXT("unlua"), TEXT("pie") };
+	Out.ExtraSearchKeywords = { TEXT("instance"), TEXT("Actor"), TEXT("Fields"), TEXT("self"), TEXT("Data") };
+	Out.RelatedCapabilities = { TEXT("GetRuntimeLuaEnv"), TEXT("GetAssetLuaBinding") };
+	Out.Prerequisites = { TEXT("unlua"), TEXT("PIE") };
 }
 
-FCapabilityResult FGetRuntimeLuaObjectCapability::Execute(const TSharedPtr<FJsonObject>& Arguments) const
+FCapabilityResult FNexusGetRuntimeLuaObjectCapability::Execute(const TSharedPtr<FJsonObject>& Arguments) const
 {
 	const FNexusArgs A(Arguments);
 	FNexusMcpToolResult Tmp;
@@ -66,32 +66,32 @@ FCapabilityResult FGetRuntimeLuaObjectCapability::Execute(const TSharedPtr<FJson
 	FCapabilityResult R;
 
 	FString ActorName;
-	if (!RequireString(Arguments, TEXT("actorName"), ActorName, R.Entries))
+	if (!RequireString(Arguments, TEXT("ActorName"), ActorName, R.Entries))
 		return R;
 
 	TSharedPtr<FJsonObject> Entry = MakeShared<FJsonObject>();
 
 	UWorld* World = FNexusRuntimeUtils::GetActiveWorld();
-	if (!World) { EmitError(R.Entries, {{TEXT("actorName"), ActorName}}, TEXT("No active World")); return R; }
+	if (!World) { EmitError(R.Entries, {{TEXT("ActorName"), ActorName}}, TEXT("No active World")); return R; }
 	AActor* Actor = FNexusRuntimeUtils::FindActorByName(World, ActorName);
-	if (!Actor) { EmitError(R.Entries, {{TEXT("actorName"), ActorName}}, TEXT("Actor not found")); return R; }
+	if (!Actor) { EmitError(R.Entries, {{TEXT("ActorName"), ActorName}}, TEXT("Actor not found")); return R; }
 
 	FString ModuleName = FNexusLuaUtils::GetUnLuaModuleName(Actor->GetClass());
 	if (ModuleName.IsEmpty())
 	{
-		EmitError(R.Entries, {{TEXT("actorName"), ActorName}}, TEXT("Actor has no UnLua binding"));
+		EmitError(R.Entries, {{TEXT("ActorName"), ActorName}}, TEXT("Actor has no UnLua binding"));
 		return R;
 	}
 
-	Entry->SetStringField(TEXT("actorName"),  ActorName);
-	Entry->SetStringField(TEXT("luaModule"),  ModuleName);
+	Entry->SetStringField(TEXT("ActorName"),  ActorName);
+	Entry->SetStringField(TEXT("LuaModule"),  ModuleName);
 
 	FString Path, NameFilter;
 	int32 Limit = 100;
-	Path = FNexusArgs(Arguments).Str(TEXT("luaPath"), Path);
-	NameFilter = FNexusArgs(Arguments).Str(TEXT("nameFilter"), NameFilter);
-	if (Arguments->HasField(TEXT("limit")))
-		Limit = FMath::Clamp(static_cast<int32>(A.Num(TEXT("limit"))), 1, 500);
+	Path = FNexusArgs(Arguments).Str(TEXT("LuaPath"), Path);
+	NameFilter = FNexusArgs(Arguments).Str(TEXT("NameFilter"), NameFilter);
+	if (Arguments->HasField(TEXT("Limit")))
+		Limit = FMath::Clamp(static_cast<int32>(A.Num(TEXT("Limit"))), 1, 500);
 
 	const int32 StackTop = lua_gettop(L);
 
@@ -101,15 +101,15 @@ FCapabilityResult FGetRuntimeLuaObjectCapability::Execute(const TSharedPtr<FJson
 		if (!FNexusLuaUtils::PushLoadedModule(L, ModuleName))
 		{
 			lua_settop(L, StackTop);
-			EmitError(R.Entries, {{TEXT("actorName"), ActorName}},
+			EmitError(R.Entries, {{TEXT("ActorName"), ActorName}},
 				TEXT("Unable to resolve object Lua table (instance and class tables unavailable)"));
 			return R;
 		}
-		Entry->SetStringField(TEXT("tableSource"), TEXT("classTable"));
+		Entry->SetStringField(TEXT("TableSource"), TEXT("classTable"));
 	}
 	else
 	{
-		Entry->SetStringField(TEXT("tableSource"), TEXT("instanceTable"));
+		Entry->SetStringField(TEXT("TableSource"), TEXT("instanceTable"));
 	}
 
 	if (!Path.IsEmpty())
@@ -129,12 +129,12 @@ FCapabilityResult FGetRuntimeLuaObjectCapability::Execute(const TSharedPtr<FJson
 		{
 			Entry->SetStringField(TEXT("type"), UTF8_TO_TCHAR(lua_typename(L, lua_type(L, -1))));
 			TSharedPtr<FJsonValue> Val = FNexusLuaUtils::LuaValueToJson(L, -1, 0);
-			Entry->SetField(TEXT("value"), Val.IsValid() ? Val : MakeShared<FJsonValueNull>());
+			Entry->SetField(TEXT("Value"), Val.IsValid() ? Val : MakeShared<FJsonValueNull>());
 		}
 		else
 		{
-			Entry->SetBoolField(TEXT("notFound"), true);
-			Entry->SetStringField(TEXT("failedAt"), FailedPart);
+			Entry->SetBoolField(TEXT("bNotFound"), true);
+			Entry->SetStringField(TEXT("FailedAt"), FailedPart);
 		}
 	}
 	else
@@ -142,8 +142,8 @@ FCapabilityResult FGetRuntimeLuaObjectCapability::Execute(const TSharedPtr<FJson
 		TArray<TSharedPtr<FJsonValue>> Keys;
 		int32 TotalCount = 0;
 		FNexusLuaUtils::CollectTableKeys(L, -1, NameFilter, Limit, Keys, TotalCount);
-		Entry->SetNumberField(TEXT("keyCount"), TotalCount);
-		Entry->SetArrayField(TEXT("keys"), Keys);
+		Entry->SetNumberField(TEXT("KeyCount"), TotalCount);
+		Entry->SetArrayField(TEXT("Keys"), Keys);
 	}
 
 	lua_settop(L, StackTop);
@@ -151,6 +151,6 @@ FCapabilityResult FGetRuntimeLuaObjectCapability::Execute(const TSharedPtr<FJson
 	return R;
 }
 
-REGISTER_MCP_CAPABILITY(FGetRuntimeLuaObjectCapability)
+REGISTER_MCP_CAPABILITY(FNexusGetRuntimeLuaObjectCapability)
 
 #endif // WITH_UNLUA

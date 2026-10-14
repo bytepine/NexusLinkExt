@@ -11,22 +11,22 @@
 #include "Utils/NexusStringMatchUtils.h"
 #include "NexusMcpTool.h"
 
-void FGetRuntimeLuaMetatableCapability::BuildDefinition(FNexusCapabilityDefinition& Out) const
+void FNexusGetRuntimeLuaMetatableCapability::BuildDefinition(FNexusCapabilityDefinition& Out) const
 {
-	Out.Name = TEXT("get_runtime_lua_metatable");
+	Out.Name = TEXT("GetRuntimeLuaMetatable");
 	Out.Description = TEXT("Dump OOP class table along __index chain. For UnLua inheritance debug.");
 	Out.InputSchema = FNexusSchema::Object()
-		.Required(TEXT("luaPath"),  FNexusSchema::Str(TEXT("Lua dot-separated path")))
-		.Prop(TEXT("nameFilter"),   FNexusSchema::Str(TEXT("Key filter; /regex/, ^prefix, suffix$")))
-		.Prop(TEXT("limit"),        FNexusSchema::Int(TEXT("Max return count"), 100, 1, 500))
+		.Required(TEXT("LuaPath"),  FNexusSchema::Str(TEXT("Lua dot-separated path")))
+		.Prop(TEXT("NameFilter"),   FNexusSchema::Str(TEXT("Key filter; /regex/, ^prefix, suffix$")))
+		.Prop(TEXT("Limit"),        FNexusSchema::Int(TEXT("Max return count"), 100, 1, 500))
 		.Build();
 	Out.Tags = {FNexusMcpTags::Readonly, FNexusMcpTags::Runtime };
-	Out.ExtraSearchKeywords = { TEXT("mt"), TEXT("metamethod"), TEXT("class"), TEXT("oop"), TEXT("inheritance") };
-	Out.RelatedCapabilities = { TEXT("get_runtime_lua_object"), TEXT("get_runtime_lua_env") };
-	Out.Prerequisites = { TEXT("unlua"), TEXT("pie") };
+	Out.ExtraSearchKeywords = { TEXT("mt"), TEXT("metamethod"), TEXT("Class"), TEXT("oop"), TEXT("inheritance") };
+	Out.RelatedCapabilities = { TEXT("GetRuntimeLuaObject"), TEXT("GetRuntimeLuaEnv") };
+	Out.Prerequisites = { TEXT("unlua"), TEXT("PIE") };
 }
 
-FCapabilityResult FGetRuntimeLuaMetatableCapability::Execute(const TSharedPtr<FJsonObject>& Arguments) const
+FCapabilityResult FNexusGetRuntimeLuaMetatableCapability::Execute(const TSharedPtr<FJsonObject>& Arguments) const
 {
 	const FNexusArgs A(Arguments);
 	FNexusMcpToolResult Tmp;
@@ -37,7 +37,7 @@ FCapabilityResult FGetRuntimeLuaMetatableCapability::Execute(const TSharedPtr<FJ
 	FCapabilityResult R;
 
 	FString Path;
-	if (!RequireString(Arguments, TEXT("luaPath"), Path, R.Entries))
+	if (!RequireString(Arguments, TEXT("LuaPath"), Path, R.Entries))
 		return R;
 
 	const int32 StackTop = lua_gettop(L);
@@ -47,27 +47,27 @@ FCapabilityResult FGetRuntimeLuaMetatableCapability::Execute(const TSharedPtr<FJ
 	if (!FNexusLuaUtils::ResolveLuaPath(L, Path))
 	{
 		lua_settop(L, StackTop);
-		EmitError(R.Entries, {{TEXT("luaPath"), Path}}, FString::Printf(TEXT("Path '%s' not found"), *Path));
+		EmitError(R.Entries, {{TEXT("LuaPath"), Path}}, FString::Printf(TEXT("Path '%s' not found"), *Path));
 		return R;
 	}
 
-	Entry->SetStringField(TEXT("valueType"), UTF8_TO_TCHAR(lua_typename(L, lua_type(L, -1))));
+	Entry->SetStringField(TEXT("ValueType"), UTF8_TO_TCHAR(lua_typename(L, lua_type(L, -1))));
 
 	if (!lua_getmetatable(L, -1))
 	{
 		lua_settop(L, StackTop);
-		Entry->SetBoolField(TEXT("hasMetatable"), false);
+		Entry->SetBoolField(TEXT("bHasMetatable"), false);
 		R.Entries.Add(MakeShared<FJsonValueObject>(Entry));
 		return R;
 	}
 
-	Entry->SetBoolField(TEXT("hasMetatable"), true);
+	Entry->SetBoolField(TEXT("bHasMetatable"), true);
 
 	FString NameFilter;
 	int32 Limit = 100;
-	NameFilter = FNexusArgs(Arguments).Str(TEXT("nameFilter"), NameFilter);
-	if (Arguments->HasField(TEXT("limit")))
-		Limit = FMath::Clamp(static_cast<int32>(A.Num(TEXT("limit"))), 1, 500);
+	NameFilter = FNexusArgs(Arguments).Str(TEXT("NameFilter"), NameFilter);
+	if (Arguments->HasField(TEXT("Limit")))
+		Limit = FMath::Clamp(static_cast<int32>(A.Num(TEXT("Limit"))), 1, 500);
 
 	const int32 MetaIdx = lua_gettop(L);
 	TArray<TSharedPtr<FJsonValue>> Keys;
@@ -92,29 +92,29 @@ FCapabilityResult FGetRuntimeLuaMetatableCapability::Execute(const TSharedPtr<FJ
 		if (Keys.Num() < Limit)
 		{
 			TSharedRef<FJsonObject> KEntry = MakeShared<FJsonObject>();
-			KEntry->SetStringField(TEXT("key"),  Key);
+			KEntry->SetStringField(TEXT("Key"),  Key);
 			KEntry->SetStringField(TEXT("type"), UTF8_TO_TCHAR(lua_typename(L, lua_type(L, -1))));
 			Keys.Add(MakeShared<FJsonValueObject>(KEntry));
 		}
 		lua_pop(L, 1);
 	}
 
-	Entry->SetNumberField(TEXT("totalCount"), TotalCount);
-	Entry->SetArrayField(TEXT("keys"), Keys);
+	Entry->SetNumberField(TEXT("TotalCount"), TotalCount);
+	Entry->SetArrayField(TEXT("Keys"), Keys);
 
 	// 检查 __index 链（UnLua 绑定常用多层 __index 继承）
 	lua_getfield(L, MetaIdx, "__index");
 	const bool bHasParent = lua_istable(L, -1) && lua_getmetatable(L, -1);
 	if (bHasParent) lua_pop(L, 1);
 	lua_pop(L, 1);
-	Entry->SetBoolField(TEXT("hasParentMetatable"), bHasParent);
+	Entry->SetBoolField(TEXT("bHasParentMetatable"), bHasParent);
 
 	lua_settop(L, StackTop);
 	R.Entries.Add(MakeShared<FJsonValueObject>(Entry));
 	return R;
 }
 
-REGISTER_MCP_CAPABILITY(FGetRuntimeLuaMetatableCapability)
+REGISTER_MCP_CAPABILITY(FNexusGetRuntimeLuaMetatableCapability)
 
 #endif // WITH_UNLUA
 

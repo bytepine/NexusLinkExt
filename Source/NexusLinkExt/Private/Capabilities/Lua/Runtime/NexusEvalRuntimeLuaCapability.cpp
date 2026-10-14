@@ -9,22 +9,22 @@
 #include "Utils/NexusLuaUtils.h"
 #include "NexusMcpTool.h"
 
-void FEvalRuntimeLuaCapability::BuildDefinition(FNexusCapabilityDefinition& Out) const
+void FNexusEvalRuntimeLuaCapability::BuildDefinition(FNexusCapabilityDefinition& Out) const
 {
-	Out.Name = TEXT("eval_runtime_lua");
+	Out.Name = TEXT("EvalRuntimeLua");
 	Out.Description = TEXT("Execute Lua snippet in PIE/Game; returns stacked values.");
 	Out.InputSchema = FNexusSchema::Object()
-		.Prop(TEXT("code"), FNexusSchema::Str(TEXT("Lua expression or code block")))
-		.Prop(TEXT("reason"), FNexusSchema::Str(TEXT("Purpose for the editor confirm dialog. Required in Confirm mode.")))
-		.Required({ TEXT("code") })
+		.Prop(TEXT("Code"), FNexusSchema::Str(TEXT("Lua expression or code block")))
+		.Prop(TEXT("Reason"), FNexusSchema::Str(TEXT("Purpose for the editor confirm dialog. Required in Confirm mode.")))
+		.Required({ TEXT("Code") })
 		.Build();
 	Out.Tags = {FNexusMcpTags::Write, FNexusMcpTags::Runtime, FNexusMcpTags::Dangerous };
-	Out.ExtraSearchKeywords = { TEXT("script"), TEXT("code"), TEXT("expression"), TEXT("repl"), TEXT("snippet") };
-	Out.RelatedCapabilities = { TEXT("set_runtime_lua"), TEXT("get_runtime_lua_value") };
-	Out.Prerequisites = { TEXT("unlua"), TEXT("pie") };
+	Out.ExtraSearchKeywords = { TEXT("script"), TEXT("Code"), TEXT("expression"), TEXT("repl"), TEXT("snippet") };
+	Out.RelatedCapabilities = { TEXT("SetRuntimeLua"), TEXT("GetRuntimeLuaValue") };
+	Out.Prerequisites = { TEXT("unlua"), TEXT("PIE") };
 }
 
-FCapabilityResult FEvalRuntimeLuaCapability::Execute(const TSharedPtr<FJsonObject>& Arguments) const
+FCapabilityResult FNexusEvalRuntimeLuaCapability::Execute(const TSharedPtr<FJsonObject>& Arguments) const
 {
 	FNexusMcpToolResult Tmp;
 	lua_State* L = FNexusLuaUtils::GetMainLuaState(Tmp);
@@ -34,19 +34,19 @@ FCapabilityResult FEvalRuntimeLuaCapability::Execute(const TSharedPtr<FJsonObjec
 	FCapabilityResult R;
 
 	FString Code;
-	if (!RequireString(Arguments, TEXT("code"), Code, R.Entries))
+	if (!RequireString(Arguments, TEXT("Code"), Code, R.Entries))
 		return R;
 
 	TSharedPtr<FJsonObject> Entry = MakeShared<FJsonObject>();
 	const int32 StackTop = lua_gettop(L);
 
 	// Best-effort：预注入 UE 全局，允许 AI 在裸 Lua 全局下直接写 UE.* 一行诊断。
-	static const char* kBootstrap =
+	static const char* Bootstrap =
 		"if rawget(_G, 'UE') == nil then\n"
 		"  local ok, M = pcall(require, 'UnLua')\n"
 		"  if ok and type(M) == 'table' and M.UE then _G.UE = M.UE end\n"
 		"end";
-	luaL_dostring(L, kBootstrap);
+	luaL_dostring(L, Bootstrap);
 	lua_settop(L, StackTop);
 
 	// 先尝试 "return <code>" 以获取返回值；失败则直接执行原始代码
@@ -79,7 +79,7 @@ FCapabilityResult FEvalRuntimeLuaCapability::Execute(const TSharedPtr<FJsonObjec
 	{
 		Entry->SetStringField(TEXT("type"), UTF8_TO_TCHAR(lua_typename(L, lua_type(L, -1))));
 		TSharedPtr<FJsonValue> Val = FNexusLuaUtils::LuaValueToJson(L, -1, 0);
-		Entry->SetField(TEXT("value"), Val.IsValid() ? Val : MakeShared<FJsonValueNull>());
+		Entry->SetField(TEXT("Value"), Val.IsValid() ? Val : MakeShared<FJsonValueNull>());
 	}
 	else if (NumResults > 1)
 	{
@@ -89,7 +89,7 @@ FCapabilityResult FEvalRuntimeLuaCapability::Execute(const TSharedPtr<FJsonObjec
 			TSharedPtr<FJsonValue> Val = FNexusLuaUtils::LuaValueToJson(L, i, 0);
 			Values.Add(Val.IsValid() ? Val : MakeShared<FJsonValueNull>());
 		}
-		Entry->SetArrayField(TEXT("values"), Values);
+		Entry->SetArrayField(TEXT("Values"), Values);
 	}
 
 	lua_settop(L, StackTop);
@@ -97,6 +97,6 @@ FCapabilityResult FEvalRuntimeLuaCapability::Execute(const TSharedPtr<FJsonObjec
 	return R;
 }
 
-REGISTER_MCP_CAPABILITY(FEvalRuntimeLuaCapability)
+REGISTER_MCP_CAPABILITY(FNexusEvalRuntimeLuaCapability)
 
 #endif // WITH_UNLUA

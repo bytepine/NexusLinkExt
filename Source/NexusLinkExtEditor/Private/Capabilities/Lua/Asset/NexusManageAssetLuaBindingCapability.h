@@ -5,8 +5,8 @@
 #if WITH_UNLUA
 #include "NexusActionCapability.h"
 
-/** manage_asset_lua_binding：绑定/解绑 Blueprint 的 UnLua 模块（禁止非 property 的 set_*）。 */
-class FManageAssetLuaBindingCapability : public FNexusActionCapability
+/** ManageAssetLuaBinding：绑定/解绑 Blueprint 的 UnLua 模块（禁止非 property 的 set_*）。 */
+class FNexusManageAssetLuaBindingCapability : public FNexusActionCapability
 {
 protected:
 	virtual void BuildDefinition(FNexusCapabilityDefinition& Out) const override;

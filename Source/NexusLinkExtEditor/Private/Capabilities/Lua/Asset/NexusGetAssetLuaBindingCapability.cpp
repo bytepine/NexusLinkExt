@@ -11,26 +11,26 @@
 #include "Engine/Blueprint.h"
 #include "Misc/Paths.h"
 
-void FGetAssetLuaBindingCapability::BuildDefinition(FNexusCapabilityDefinition& Out) const
+void FNexusGetAssetLuaBindingCapability::BuildDefinition(FNexusCapabilityDefinition& Out) const
 {
-	Out.Name = TEXT("get_asset_lua_binding");
-	Out.Description = TEXT("Resolve BP-bound UnLua module. Returns bound/fileExists; requires UnLua.");
+	Out.Name = TEXT("GetAssetLuaBinding");
+	Out.Description = TEXT("Resolve BP-bound UnLua module. Returns bound/bFileExists; requires UnLua.");
 	Out.InputSchema = FNexusSchema::Object()
-		.Required(TEXT("assetPath"), FNexusSchema::Str(TEXT("Blueprint asset path")))
+		.Required(TEXT("AssetPath"), FNexusSchema::Str(TEXT("Blueprint asset path")))
 		.Build();
 	Out.Tags = {FNexusMcpTags::Readonly, FNexusMcpTags::Blueprint };
 	Out.ExtraSearchKeywords = { TEXT("unlua"), TEXT("module"), TEXT("mapping"), TEXT("filepath"), TEXT("script") };
-	Out.RelatedCapabilities = { TEXT("get_runtime_lua_object"), TEXT("get_runtime_lua_env"), TEXT("manage_asset_lua_binding") };
-	Out.Prerequisites = { TEXT("unlua"), TEXT("editor_only") };
+	Out.RelatedCapabilities = { TEXT("GetRuntimeLuaObject"), TEXT("GetRuntimeLuaEnv"), TEXT("ManageAssetLuaBinding") };
+	Out.Prerequisites = { TEXT("unlua"), TEXT("EditorOnly") };
 	Out.WhenToUse = TEXT("Find bound file path before read/edit Lua");
 }
 
-FCapabilityResult FGetAssetLuaBindingCapability::Execute(const TSharedPtr<FJsonObject>& Arguments) const
+FCapabilityResult FNexusGetAssetLuaBindingCapability::Execute(const TSharedPtr<FJsonObject>& Arguments) const
 {
 	FCapabilityResult R;
 
 	FString AssetPath;
-	if (!RequireString(Arguments, TEXT("assetPath"), AssetPath, R.Entries))
+	if (!RequireString(Arguments, TEXT("AssetPath"), AssetPath, R.Entries))
 		return R;
 
 	UObject* Obj = FNexusAssetUtils::LoadAssetWithFallback<UObject>(AssetPath);
@@ -39,19 +39,19 @@ FCapabilityResult FGetAssetLuaBindingCapability::Execute(const TSharedPtr<FJsonO
 
 	UBlueprint* BP = Cast<UBlueprint>(Obj);
 	if (!BP || !BP->GeneratedClass)
-		return FCapabilityResult::MakeFatal(TEXT("assetPath must point to Blueprint asset"));
+		return FCapabilityResult::MakeFatal(TEXT("AssetPath must point to Blueprint asset"));
 
 	TSharedPtr<FJsonObject> Entry = MakeShared<FJsonObject>();
-	Entry->SetStringField(TEXT("path"), AssetPath);
+	Entry->SetStringField(TEXT("Path"), AssetPath);
 	if (BP->ParentClass)
-		Entry->SetStringField(TEXT("parentClass"), BP->ParentClass->GetName());
+		Entry->SetStringField(TEXT("ParentClass"), BP->ParentClass->GetName());
 
 	const FString ModuleName = FNexusLuaUtils::GetUnLuaModuleName(BP->GeneratedClass);
 	if (ModuleName.IsEmpty())
 	{
-		Entry->SetBoolField(TEXT("bound"), false);
-		Entry->SetStringField(TEXT("hint"),
-			TEXT("Blueprint has no UnLua binding; do not guess Lua paths. Use get_asset_blueprint or runtime Lua caps instead."));
+		Entry->SetBoolField(TEXT("bBound"), false);
+		Entry->SetStringField(TEXT("Hint"),
+			TEXT("Blueprint has no UnLua binding; do not guess Lua paths. Use GetAssetBlueprint or runtime Lua caps instead."));
 		R.Entries.Add(MakeShared<FJsonValueObject>(Entry));
 		return R;
 	}
@@ -59,19 +59,19 @@ FCapabilityResult FGetAssetLuaBindingCapability::Execute(const TSharedPtr<FJsonO
 	const FString LuaAbsPath = FPaths::Combine(
 		FPaths::ProjectContentDir(), TEXT("Script"), ModuleName.Replace(TEXT("."), TEXT("/"))) + TEXT(".lua");
 
-	Entry->SetBoolField(TEXT("bound"), true);
-	Entry->SetStringField(TEXT("moduleName"), ModuleName);
-	Entry->SetStringField(TEXT("expectedLuaPath"), LuaAbsPath);
+	Entry->SetBoolField(TEXT("bBound"), true);
+	Entry->SetStringField(TEXT("ModuleName"), ModuleName);
+	Entry->SetStringField(TEXT("ExpectedLuaPath"), LuaAbsPath);
 
 	if (FPaths::FileExists(LuaAbsPath))
 	{
-		Entry->SetBoolField(TEXT("fileExists"), true);
-		Entry->SetStringField(TEXT("luaFilePath"), LuaAbsPath);
+		Entry->SetBoolField(TEXT("bFileExists"), true);
+		Entry->SetStringField(TEXT("LuaFilePath"), LuaAbsPath);
 	}
 	else
 	{
-		Entry->SetBoolField(TEXT("fileExists"), false);
-		Entry->SetStringField(TEXT("hint"),
+		Entry->SetBoolField(TEXT("bFileExists"), false);
+		Entry->SetStringField(TEXT("Hint"),
 			TEXT("UnLua module registered but .lua missing on disk; check Content/Script or create file."));
 	}
 
@@ -79,6 +79,6 @@ FCapabilityResult FGetAssetLuaBindingCapability::Execute(const TSharedPtr<FJsonO
 	return R;
 }
 
-REGISTER_MCP_CAPABILITY(FGetAssetLuaBindingCapability)
+REGISTER_MCP_CAPABILITY(FNexusGetAssetLuaBindingCapability)
 
 #endif // WITH_UNLUA

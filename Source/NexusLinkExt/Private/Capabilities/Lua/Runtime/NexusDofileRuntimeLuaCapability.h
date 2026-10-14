@@ -12,7 +12,7 @@
 struct lua_State;
 
 /** manage_runtime_lua_dofile — 加载并执行 Lua 文件。 */
-class FDofileRuntimeLuaCapability : public FNexusRuntimeCapability
+class FNexusDofileRuntimeLuaCapability : public FNexusRuntimeCapability
 {
 protected:
 	virtual void BuildDefinition(FNexusCapabilityDefinition& Out) const override;

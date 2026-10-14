@@ -11,8 +11,8 @@
 
 struct lua_State;
 
-/** get_runtime_lua_value — 按点分路径读取单个 Lua 值。 */
-class FGetRuntimeLuaValueCapability : public FNexusRuntimeCapability
+/** GetRuntimeLuaValue — 按点分路径读取单个 Lua 值。 */
+class FNexusGetRuntimeLuaValueCapability : public FNexusRuntimeCapability
 {
 protected:
 	virtual void BuildDefinition(FNexusCapabilityDefinition& Out) const override;

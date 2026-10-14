@@ -9,21 +9,21 @@
 #include "Utils/NexusLuaUtils.h"
 #include "NexusMcpTool.h"
 
-void FSetRuntimeLuaCapability::BuildDefinition(FNexusCapabilityDefinition& Out) const
+void FNexusSetRuntimeLuaCapability::BuildDefinition(FNexusCapabilityDefinition& Out) const
 {
-	Out.Name = TEXT("set_runtime_lua");
+	Out.Name = TEXT("SetRuntimeLua");
 	Out.Description = TEXT("Assign Lua global or nested field. Dot path; string/number/bool/null.");
 	Out.InputSchema = FNexusSchema::Object()
-		.Required(TEXT("luaPath"), FNexusSchema::Str(TEXT("Dot path target for set")))
-		.Required(TEXT("value"),   FNexusSchema::AnyScalar(TEXT("Value (string/number/boolean/null)")))
+		.Required(TEXT("LuaPath"), FNexusSchema::Str(TEXT("Dot path target for set")))
+		.Required(TEXT("Value"),   FNexusSchema::AnyScalar(TEXT("Value (string/number/boolean/null)")))
 		.Build();
 	Out.Tags = {FNexusMcpTags::Write, FNexusMcpTags::Runtime };
-	Out.ExtraSearchKeywords = { TEXT("value"), TEXT("variable"), TEXT("field"), TEXT("path"), TEXT("assign") };
-	Out.RelatedCapabilities = { TEXT("get_runtime_lua_value"), TEXT("eval_runtime_lua") };
-	Out.Prerequisites = { TEXT("unlua"), TEXT("pie") };
+	Out.ExtraSearchKeywords = { TEXT("Value"), TEXT("variable"), TEXT("field"), TEXT("Path"), TEXT("assign") };
+	Out.RelatedCapabilities = { TEXT("GetRuntimeLuaValue"), TEXT("EvalRuntimeLua") };
+	Out.Prerequisites = { TEXT("unlua"), TEXT("PIE") };
 }
 
-FCapabilityResult FSetRuntimeLuaCapability::Execute(const TSharedPtr<FJsonObject>& Arguments) const
+FCapabilityResult FNexusSetRuntimeLuaCapability::Execute(const TSharedPtr<FJsonObject>& Arguments) const
 {
 	FNexusMcpToolResult Tmp;
 	lua_State* L = FNexusLuaUtils::GetMainLuaState(Tmp);
@@ -33,20 +33,20 @@ FCapabilityResult FSetRuntimeLuaCapability::Execute(const TSharedPtr<FJsonObject
 	FCapabilityResult R;
 
 	FString Path;
-	if (!RequireString(Arguments, TEXT("luaPath"), Path, R.Entries))
+	if (!RequireString(Arguments, TEXT("LuaPath"), Path, R.Entries))
 		return R;
-	if (!Arguments->HasField(TEXT("value")))
+	if (!Arguments->HasField(TEXT("Value")))
 	{
-		EmitError(R.Entries, {{TEXT("luaPath"), Path}}, TEXT("Missing value"));
+		EmitError(R.Entries, {{TEXT("LuaPath"), Path}}, TEXT("Missing value"));
 		return R;
 	}
 
 	TSharedPtr<FJsonObject> Entry = MakeShared<FJsonObject>();
-	Entry->SetStringField(TEXT("luaPath"), Path);
+	Entry->SetStringField(TEXT("LuaPath"), Path);
 	const int32 StackTop = lua_gettop(L);
 
 	// 将 JSON value 压入 Lua 栈
-	TSharedPtr<FJsonValue> JsonVal = Arguments->TryGetField(TEXT("value"));
+	TSharedPtr<FJsonValue> JsonVal = Arguments->TryGetField(TEXT("Value"));
 	if (!JsonVal.IsValid() || JsonVal->IsNull())
 	{
 		lua_pushnil(L);
@@ -66,7 +66,7 @@ FCapabilityResult FSetRuntimeLuaCapability::Execute(const TSharedPtr<FJsonObject
 	else
 	{
 		lua_settop(L, StackTop);
-		EmitError(R.Entries, {{TEXT("luaPath"), Path}}, TEXT("value supports string/number/boolean/null only"));
+		EmitError(R.Entries, {{TEXT("LuaPath"), Path}}, TEXT("value supports string/number/boolean/null only"));
 		return R;
 	}
 
@@ -83,7 +83,7 @@ FCapabilityResult FSetRuntimeLuaCapability::Execute(const TSharedPtr<FJsonObject
 		if (!lua_istable(L, -1))
 		{
 			lua_settop(L, StackTop);
-			EmitError(R.Entries, {{TEXT("luaPath"), Path}},
+			EmitError(R.Entries, {{TEXT("LuaPath"), Path}},
 				FString::Printf(TEXT("'%s' is not a table; cannot set sub-field"), *Parts[0]));
 			return R;
 		}
@@ -94,7 +94,7 @@ FCapabilityResult FSetRuntimeLuaCapability::Execute(const TSharedPtr<FJsonObject
 			if (!lua_istable(L, -1))
 			{
 				lua_settop(L, StackTop);
-				EmitError(R.Entries, {{TEXT("luaPath"), Path}},
+				EmitError(R.Entries, {{TEXT("LuaPath"), Path}},
 					FString::Printf(TEXT("Intermediate path node '%s' is not a table"), *Parts[i]));
 				return R;
 			}
@@ -112,6 +112,6 @@ FCapabilityResult FSetRuntimeLuaCapability::Execute(const TSharedPtr<FJsonObject
 	return R;
 }
 
-REGISTER_MCP_CAPABILITY(FSetRuntimeLuaCapability)
+REGISTER_MCP_CAPABILITY(FNexusSetRuntimeLuaCapability)
 
 #endif // WITH_UNLUA

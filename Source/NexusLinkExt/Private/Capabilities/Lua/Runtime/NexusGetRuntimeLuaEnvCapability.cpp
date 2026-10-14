@@ -10,23 +10,23 @@
 #include "Utils/NexusLuaUtils.h"
 #include "Utils/NexusStringMatchUtils.h"
 
-void FGetRuntimeLuaEnvCapability::BuildDefinition(FNexusCapabilityDefinition& Out) const
+void FNexusGetRuntimeLuaEnvCapability::BuildDefinition(FNexusCapabilityDefinition& Out) const
 {
-	Out.Name = TEXT("get_runtime_lua_env");
-	Out.Description = TEXT("List _G or nested table keys. Supports nameFilter+limit.");
+	Out.Name = TEXT("GetRuntimeLuaEnv");
+	Out.Description = TEXT("List _G or nested table keys. Supports NameFilter+limit.");
 	Out.InputSchema = FNexusSchema::Object()
-		.Prop(TEXT("luaPath"),    FNexusSchema::Str(TEXT("Dot-separated table path; omit for _G")))
-		.Prop(TEXT("nameFilter"), FNexusSchema::Str(TEXT("Key filter; /regex/, ^prefix, suffix$")))
-		.Prop(TEXT("limit"),      FNexusSchema::Int(TEXT("Max return count"), 100, 1, 500))
+		.Prop(TEXT("LuaPath"),    FNexusSchema::Str(TEXT("Dot-separated table path; omit for _G")))
+		.Prop(TEXT("NameFilter"), FNexusSchema::Str(TEXT("Key filter; /regex/, ^prefix, suffix$")))
+		.Prop(TEXT("Limit"),      FNexusSchema::Int(TEXT("Max return count"), 100, 1, 500))
 		.Build();
 	Out.Tags = {FNexusMcpTags::Readonly, FNexusMcpTags::Runtime };
-	Out.ExtraSearchKeywords = { TEXT("environment"), TEXT("global"), TEXT("table"), TEXT("keys"), TEXT("scope") };
-	Out.RelatedCapabilities = { TEXT("get_runtime_lua_value"), TEXT("get_runtime_lua_object") };
-	Out.Prerequisites = { TEXT("unlua"), TEXT("pie") };
+	Out.ExtraSearchKeywords = { TEXT("environment"), TEXT("global"), TEXT("table"), TEXT("Keys"), TEXT("scope") };
+	Out.RelatedCapabilities = { TEXT("GetRuntimeLuaValue"), TEXT("GetRuntimeLuaObject") };
+	Out.Prerequisites = { TEXT("unlua"), TEXT("PIE") };
 	Out.WhenToUse = TEXT("Browse all keys (env) or read single key (value)");
 }
 
-FCapabilityResult FGetRuntimeLuaEnvCapability::Execute(const TSharedPtr<FJsonObject>& Arguments) const
+FCapabilityResult FNexusGetRuntimeLuaEnvCapability::Execute(const TSharedPtr<FJsonObject>& Arguments) const
 {
 	const FNexusArgs A(Arguments);
 	FNexusMcpToolResult Tmp;
@@ -38,7 +38,7 @@ FCapabilityResult FGetRuntimeLuaEnvCapability::Execute(const TSharedPtr<FJsonObj
 	const int32 StackTop = lua_gettop(L);
 
 	FString TablePath;
-	TablePath = FNexusArgs(Arguments).Str(TEXT("luaPath"), TablePath);
+	TablePath = FNexusArgs(Arguments).Str(TEXT("LuaPath"), TablePath);
 
 	if (TablePath.IsEmpty())
 	{
@@ -47,22 +47,22 @@ FCapabilityResult FGetRuntimeLuaEnvCapability::Execute(const TSharedPtr<FJsonObj
 	else if (!FNexusLuaUtils::ResolveLuaPath(L, TablePath))
 	{
 		lua_settop(L, StackTop);
-		EmitError(R.Entries, {{TEXT("luaPath"), TablePath}}, FString::Printf(TEXT("Path '%s' not found"), *TablePath));
+		EmitError(R.Entries, {{TEXT("LuaPath"), TablePath}}, FString::Printf(TEXT("Path '%s' not found"), *TablePath));
 		return R;
 	}
 
 	if (!lua_istable(L, -1))
 	{
 		lua_settop(L, StackTop);
-		EmitError(R.Entries, {{TEXT("luaPath"), TablePath}}, FString::Printf(TEXT("'%s' is not a table"), *TablePath));
+		EmitError(R.Entries, {{TEXT("LuaPath"), TablePath}}, FString::Printf(TEXT("'%s' is not a table"), *TablePath));
 		return R;
 	}
 
 	FString NameFilter;
 	int32 Limit = 100;
-	NameFilter = FNexusArgs(Arguments).Str(TEXT("nameFilter"), NameFilter);
-	if (Arguments->HasField(TEXT("limit")))
-		Limit = FMath::Clamp(static_cast<int32>(A.Num(TEXT("limit"))), 1, 500);
+	NameFilter = FNexusArgs(Arguments).Str(TEXT("NameFilter"), NameFilter);
+	if (Arguments->HasField(TEXT("Limit")))
+		Limit = FMath::Clamp(static_cast<int32>(A.Num(TEXT("Limit"))), 1, 500);
 
 	const int32 AbsIdx = lua_gettop(L);
 	TArray<TSharedPtr<FJsonValue>> Keys;
@@ -87,7 +87,7 @@ FCapabilityResult FGetRuntimeLuaEnvCapability::Execute(const TSharedPtr<FJsonObj
 		if (Keys.Num() < Limit)
 		{
 			TSharedRef<FJsonObject> Entry = MakeShared<FJsonObject>();
-			Entry->SetStringField(TEXT("key"),  Key);
+			Entry->SetStringField(TEXT("Key"),  Key);
 			Entry->SetStringField(TEXT("type"), UTF8_TO_TCHAR(lua_typename(L, lua_type(L, -1))));
 			Keys.Add(MakeShared<FJsonValueObject>(Entry));
 		}
@@ -97,13 +97,13 @@ FCapabilityResult FGetRuntimeLuaEnvCapability::Execute(const TSharedPtr<FJsonObj
 	lua_settop(L, StackTop);
 
 	TSharedPtr<FJsonObject> OutEntry = MakeShared<FJsonObject>();
-	OutEntry->SetNumberField(TEXT("totalCount"), TotalCount);
-	OutEntry->SetArrayField(TEXT("keys"), Keys);
+	OutEntry->SetNumberField(TEXT("TotalCount"), TotalCount);
+	OutEntry->SetArrayField(TEXT("Keys"), Keys);
 	R.Entries.Add(MakeShared<FJsonValueObject>(OutEntry));
 	return R;
 }
 
-REGISTER_MCP_CAPABILITY(FGetRuntimeLuaEnvCapability)
+REGISTER_MCP_CAPABILITY(FNexusGetRuntimeLuaEnvCapability)
 
 #endif // WITH_UNLUA
 

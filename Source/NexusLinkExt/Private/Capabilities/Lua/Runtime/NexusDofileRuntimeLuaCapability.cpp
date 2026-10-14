@@ -10,22 +10,22 @@
 #include "Misc/Paths.h"
 #include "NexusMcpTool.h"
 
-void FDofileRuntimeLuaCapability::BuildDefinition(FNexusCapabilityDefinition& Out) const
+void FNexusDofileRuntimeLuaCapability::BuildDefinition(FNexusCapabilityDefinition& Out) const
 {
-	Out.Name = TEXT("dofile_runtime_lua");
+	Out.Name = TEXT("DofileRuntimeLua");
 	Out.Description = TEXT("Load/run .lua from Content/Script/. Relative path; requires UnLua+PIE.");
 	Out.InputSchema = FNexusSchema::Object()
-		.Prop(TEXT("scriptPath"), FNexusSchema::Str(TEXT("Lua file path (relative to Content/Script/)")))
-		.Prop(TEXT("reason"), FNexusSchema::Str(TEXT("Purpose for the editor confirm dialog. Required in Confirm mode.")))
-		.Required({ TEXT("scriptPath") })
+		.Prop(TEXT("ScriptPath"), FNexusSchema::Str(TEXT("Lua file path (relative to Content/Script/)")))
+		.Prop(TEXT("Reason"), FNexusSchema::Str(TEXT("Purpose for the editor confirm dialog. Required in Confirm mode.")))
+		.Required({ TEXT("ScriptPath") })
 		.Build();
 	Out.Tags = {FNexusMcpTags::Write, FNexusMcpTags::Runtime, FNexusMcpTags::Dangerous };
-	Out.ExtraSearchKeywords = { TEXT("require"), TEXT("script"), TEXT("file"), TEXT("load"), TEXT("execute") };
-	Out.RelatedCapabilities = { TEXT("eval_runtime_lua"), TEXT("hotreload_runtime_lua") };
-	Out.Prerequisites = { TEXT("unlua"), TEXT("pie") };
+	Out.ExtraSearchKeywords = { TEXT("require"), TEXT("script"), TEXT("File"), TEXT("load"), TEXT("execute") };
+	Out.RelatedCapabilities = { TEXT("EvalRuntimeLua"), TEXT("HotReloadRuntimeLua") };
+	Out.Prerequisites = { TEXT("unlua"), TEXT("PIE") };
 }
 
-FCapabilityResult FDofileRuntimeLuaCapability::Execute(const TSharedPtr<FJsonObject>& Arguments) const
+FCapabilityResult FNexusDofileRuntimeLuaCapability::Execute(const TSharedPtr<FJsonObject>& Arguments) const
 {
 	FNexusMcpToolResult Tmp;
 	lua_State* L = FNexusLuaUtils::GetMainLuaState(Tmp);
@@ -35,13 +35,13 @@ FCapabilityResult FDofileRuntimeLuaCapability::Execute(const TSharedPtr<FJsonObj
 	FCapabilityResult R;
 
 	FString ScriptPath;
-	if (!RequireString(Arguments, TEXT("scriptPath"), ScriptPath, R.Entries))
+	if (!RequireString(Arguments, TEXT("ScriptPath"), ScriptPath, R.Entries))
 		return R;
 
 	if (ScriptPath.IsEmpty() || !FPaths::IsRelative(ScriptPath) || ScriptPath.Contains(TEXT("..")))
 	{
 		return FCapabilityResult::MakeFatal(
-			TEXT("scriptPath must be relative to Content/Script/ and must not contain '..'"));
+			TEXT("ScriptPath must be relative to Content/Script/ and must not contain '..'"));
 	}
 
 	FString Root = FPaths::ConvertRelativePathToFull(
@@ -52,11 +52,11 @@ FCapabilityResult FDofileRuntimeLuaCapability::Execute(const TSharedPtr<FJsonObj
 	FPaths::CollapseRelativeDirectories(AbsPath);
 
 	if (!FPaths::IsUnderDirectory(AbsPath, Root))
-		return FCapabilityResult::MakeFatal(TEXT("scriptPath escapes Content/Script/"));
+		return FCapabilityResult::MakeFatal(TEXT("ScriptPath escapes Content/Script/"));
 
 	if (!FPaths::FileExists(AbsPath))
 	{
-		EmitError(R.Entries, {{TEXT("scriptPath"), AbsPath}},
+		EmitError(R.Entries, {{TEXT("ScriptPath"), AbsPath}},
 			FString::Printf(TEXT("File not found: %s"), *AbsPath));
 		return R;
 	}
@@ -68,7 +68,7 @@ FCapabilityResult FDofileRuntimeLuaCapability::Execute(const TSharedPtr<FJsonObj
 	{
 		FString ErrMsg = UTF8_TO_TCHAR(lua_tostring(L, -1));
 		lua_settop(L, StackTop);
-		EmitError(R.Entries, {{TEXT("scriptPath"), AbsPath}}, FString::Printf(TEXT("Lua load error: %s"), *ErrMsg));
+		EmitError(R.Entries, {{TEXT("ScriptPath"), AbsPath}}, FString::Printf(TEXT("Lua load error: %s"), *ErrMsg));
 		return R;
 	}
 
@@ -76,18 +76,18 @@ FCapabilityResult FDofileRuntimeLuaCapability::Execute(const TSharedPtr<FJsonObj
 	{
 		FString ErrMsg = UTF8_TO_TCHAR(lua_tostring(L, -1));
 		lua_settop(L, StackTop);
-		EmitError(R.Entries, {{TEXT("scriptPath"), AbsPath}}, FString::Printf(TEXT("Lua execution error: %s"), *ErrMsg));
+		EmitError(R.Entries, {{TEXT("ScriptPath"), AbsPath}}, FString::Printf(TEXT("Lua execution error: %s"), *ErrMsg));
 		return R;
 	}
 
 	const int32 NumResults = lua_gettop(L) - StackTop;
-	Entry->SetStringField(TEXT("scriptPath"), AbsPath);
+	Entry->SetStringField(TEXT("ScriptPath"), AbsPath);
 
 	if (NumResults == 1)
 	{
 		Entry->SetStringField(TEXT("type"), UTF8_TO_TCHAR(lua_typename(L, lua_type(L, -1))));
 		TSharedPtr<FJsonValue> Val = FNexusLuaUtils::LuaValueToJson(L, -1, 0);
-		Entry->SetField(TEXT("value"), Val.IsValid() ? Val : MakeShared<FJsonValueNull>());
+		Entry->SetField(TEXT("Value"), Val.IsValid() ? Val : MakeShared<FJsonValueNull>());
 	}
 	else if (NumResults > 1)
 	{
@@ -97,7 +97,7 @@ FCapabilityResult FDofileRuntimeLuaCapability::Execute(const TSharedPtr<FJsonObj
 			TSharedPtr<FJsonValue> Val = FNexusLuaUtils::LuaValueToJson(L, i, 0);
 			Values.Add(Val.IsValid() ? Val : MakeShared<FJsonValueNull>());
 		}
-		Entry->SetArrayField(TEXT("values"), Values);
+		Entry->SetArrayField(TEXT("Values"), Values);
 	}
 
 	lua_settop(L, StackTop);
@@ -105,6 +105,6 @@ FCapabilityResult FDofileRuntimeLuaCapability::Execute(const TSharedPtr<FJsonObj
 	return R;
 }
 
-REGISTER_MCP_CAPABILITY(FDofileRuntimeLuaCapability)
+REGISTER_MCP_CAPABILITY(FNexusDofileRuntimeLuaCapability)
 
 #endif // WITH_UNLUA

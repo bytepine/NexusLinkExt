@@ -11,21 +11,21 @@
 #include "Utils/NexusStringMatchUtils.h"
 #include "NexusMcpTool.h"
 
-void FGetRuntimeLuaLoadedCapability::BuildDefinition(FNexusCapabilityDefinition& Out) const
+void FNexusGetRuntimeLuaLoadedCapability::BuildDefinition(FNexusCapabilityDefinition& Out) const
 {
-	Out.Name = TEXT("get_runtime_lua_loaded");
+	Out.Name = TEXT("GetRuntimeLuaLoaded");
 	Out.Description = TEXT("List package.loaded modules. Supports name filter.");
 	Out.InputSchema = FNexusSchema::Object()
-		.Prop(TEXT("nameFilter"), FNexusSchema::Str(TEXT("Key filter; /regex/, ^prefix, suffix$")))
-		.Prop(TEXT("limit"),      FNexusSchema::Int(TEXT("Max return count"), 100, 1, 500))
+		.Prop(TEXT("NameFilter"), FNexusSchema::Str(TEXT("Key filter; /regex/, ^prefix, suffix$")))
+		.Prop(TEXT("Limit"),      FNexusSchema::Int(TEXT("Max return count"), 100, 1, 500))
 		.Build();
 	Out.Tags = {FNexusMcpTags::Readonly, FNexusMcpTags::Runtime };
-	Out.ExtraSearchKeywords = { TEXT("modules"), TEXT("require"), TEXT("package"), TEXT("cache"), TEXT("imports") };
-	Out.RelatedCapabilities = { TEXT("hotreload_runtime_lua"), TEXT("dofile_runtime_lua") };
-	Out.Prerequisites = { TEXT("unlua"), TEXT("pie") };
+	Out.ExtraSearchKeywords = { TEXT("Modules"), TEXT("require"), TEXT("package"), TEXT("cache"), TEXT("imports") };
+	Out.RelatedCapabilities = { TEXT("HotReloadRuntimeLua"), TEXT("DofileRuntimeLua") };
+	Out.Prerequisites = { TEXT("unlua"), TEXT("PIE") };
 }
 
-FCapabilityResult FGetRuntimeLuaLoadedCapability::Execute(const TSharedPtr<FJsonObject>& Arguments) const
+FCapabilityResult FNexusGetRuntimeLuaLoadedCapability::Execute(const TSharedPtr<FJsonObject>& Arguments) const
 {
 	const FNexusArgs A(Arguments);
 	FNexusMcpToolResult Tmp;
@@ -51,9 +51,9 @@ FCapabilityResult FGetRuntimeLuaLoadedCapability::Execute(const TSharedPtr<FJson
 
 	FString NameFilter;
 	int32 Limit = 100;
-	NameFilter = FNexusArgs(Arguments).Str(TEXT("nameFilter"), NameFilter);
-	if (Arguments->HasField(TEXT("limit")))
-		Limit = FMath::Clamp(static_cast<int32>(A.Num(TEXT("limit"))), 1, 500);
+	NameFilter = FNexusArgs(Arguments).Str(TEXT("NameFilter"), NameFilter);
+	if (Arguments->HasField(TEXT("Limit")))
+		Limit = FMath::Clamp(static_cast<int32>(A.Num(TEXT("Limit"))), 1, 500);
 
 	const int32 LoadedIdx = lua_gettop(L);
 	TArray<TSharedPtr<FJsonValue>> Modules;
@@ -87,13 +87,13 @@ FCapabilityResult FGetRuntimeLuaLoadedCapability::Execute(const TSharedPtr<FJson
 	lua_settop(L, StackTop);
 
 	TSharedPtr<FJsonObject> OutEntry = MakeShared<FJsonObject>();
-	OutEntry->SetNumberField(TEXT("totalCount"), TotalCount);
-	OutEntry->SetArrayField(TEXT("modules"), Modules);
+	OutEntry->SetNumberField(TEXT("TotalCount"), TotalCount);
+	OutEntry->SetArrayField(TEXT("Modules"), Modules);
 	R.Entries.Add(MakeShared<FJsonValueObject>(OutEntry));
 	return R;
 }
 
-REGISTER_MCP_CAPABILITY(FGetRuntimeLuaLoadedCapability)
+REGISTER_MCP_CAPABILITY(FNexusGetRuntimeLuaLoadedCapability)
 
 #endif // WITH_UNLUA
 

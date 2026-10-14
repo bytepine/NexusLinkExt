@@ -12,7 +12,7 @@
 struct lua_State;
 
 /** manage_runtime_lua_eval — 执行 Lua 表达式或代码段。 */
-class FEvalRuntimeLuaCapability : public FNexusRuntimeCapability
+class FNexusEvalRuntimeLuaCapability : public FNexusRuntimeCapability
 {
 protected:
 	virtual void BuildDefinition(FNexusCapabilityDefinition& Out) const override;

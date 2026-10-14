@@ -11,8 +11,8 @@
 
 struct lua_State;
 
-/** get_runtime_lua_stack — 检查 Lua 调用栈帧。 */
-class FGetRuntimeLuaStackCapability : public FNexusRuntimeCapability
+/** GetRuntimeLuaStack — 检查 Lua 调用栈帧。 */
+class FNexusGetRuntimeLuaStackCapability : public FNexusRuntimeCapability
 {
 protected:
 	virtual void BuildDefinition(FNexusCapabilityDefinition& Out) const override;

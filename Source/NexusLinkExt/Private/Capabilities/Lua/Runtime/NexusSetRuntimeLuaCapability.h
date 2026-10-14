@@ -12,7 +12,7 @@
 struct lua_State;
 
 /** manage_runtime_lua_set — 写入 Lua 全局或子表字段。 */
-class FSetRuntimeLuaCapability : public FNexusRuntimeCapability
+class FNexusSetRuntimeLuaCapability : public FNexusRuntimeCapability
 {
 protected:
 	virtual void BuildDefinition(FNexusCapabilityDefinition& Out) const override;

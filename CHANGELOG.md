@@ -7,6 +7,11 @@
 
 ## [Unreleased]
 
+### Changed
+
+- **破坏性**：Lua Capability 的工具 id 与字段改为 PascalCase，与 NexusLink 同一套命名。布尔字段加 `b` 前缀。
+- 私有 Capability 类名与文件名对齐，例如 `FNexusEvalRuntimeLuaCapability`。
+
 ## [1.0.1] - 2026-10-13
 
 ### Fixed

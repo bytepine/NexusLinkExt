@@ -10,21 +10,21 @@
 #include "Utils/NexusLuaUtils.h"
 #include "NexusMcpTool.h"
 
-void FGcRuntimeLuaCapability::BuildDefinition(FNexusCapabilityDefinition& Out) const
+void FNexusGcRuntimeLuaCapability::BuildDefinition(FNexusCapabilityDefinition& Out) const
 {
-	Out.Name = TEXT("gc_runtime_lua");
-	Out.Description = TEXT("Control Lua GC in PIE. mode=collect|stop|restart|count.");
+	Out.Name = TEXT("GcRuntimeLua");
+	Out.Description = TEXT("Control Lua GC in PIE. Mode=collect|stop|restart|count.");
 	Out.InputSchema = FNexusSchema::Object()
-		.Prop(TEXT("mode"), FNexusSchema::Enum(TEXT("GC mode"),
-			{ TEXT("collect"), TEXT("stop"), TEXT("restart"), TEXT("count") }, TEXT("collect")))
+		.Prop(TEXT("Mode"), FNexusSchema::Enum(TEXT("GC mode"),
+			{ TEXT("Collect"), TEXT("Stop"), TEXT("Restart"), TEXT("Count") }, TEXT("Collect")))
 		.Build();
 	Out.Tags = {FNexusMcpTags::Write, FNexusMcpTags::Runtime };
-	Out.ExtraSearchKeywords = { TEXT("collect"), TEXT("garbage"), TEXT("memory"), TEXT("cleanup"), TEXT("reclaim") };
-	Out.RelatedCapabilities = { TEXT("get_runtime_lua_memory") };
-	Out.Prerequisites = { TEXT("unlua"), TEXT("pie") };
+	Out.ExtraSearchKeywords = { TEXT("Collect"), TEXT("garbage"), TEXT("memory"), TEXT("cleanup"), TEXT("reclaim") };
+	Out.RelatedCapabilities = { TEXT("GetRuntimeLuaMemory") };
+	Out.Prerequisites = { TEXT("unlua"), TEXT("PIE") };
 }
 
-FCapabilityResult FGcRuntimeLuaCapability::Execute(const TSharedPtr<FJsonObject>& Arguments) const
+FCapabilityResult FNexusGcRuntimeLuaCapability::Execute(const TSharedPtr<FJsonObject>& Arguments) const
 {
 	const FNexusArgs A(Arguments);
 	FNexusMcpToolResult Tmp;
@@ -32,9 +32,9 @@ FCapabilityResult FGcRuntimeLuaCapability::Execute(const TSharedPtr<FJsonObject>
 	if (!L)
 		return FCapabilityResult::MakeFatal(Tmp.ErrorText);
 
-	FString Mode = TEXT("collect");
-	if (Arguments->HasField(TEXT("mode")))
-		Mode = A.Str(TEXT("mode")).ToLower();
+	FString Mode = TEXT("Collect");
+	if (Arguments->HasField(TEXT("Mode")))
+		Mode = A.Str(TEXT("Mode")).ToLower();
 
 	FCapabilityResult R;
 	TSharedPtr<FJsonObject> Entry = MakeShared<FJsonObject>();
@@ -43,33 +43,33 @@ FCapabilityResult FGcRuntimeLuaCapability::Execute(const TSharedPtr<FJsonObject>
 	const int32 MemBeforeB  = lua_gc(L, LUA_GCCOUNTB, 0);
 	const int32 BeforeBytes = MemBeforeKB * 1024 + MemBeforeB;
 
-	if (Mode == TEXT("collect"))
+	if (Mode == TEXT("Collect"))
 	{
 		lua_gc(L, LUA_GCCOLLECT, 0);
 		const int32 MemAfterKB = lua_gc(L, LUA_GCCOUNT,  0);
 		const int32 MemAfterB  = lua_gc(L, LUA_GCCOUNTB, 0);
-		Entry->SetStringField(TEXT("mode"),          TEXT("collect"));
-		Entry->SetNumberField(TEXT("memoryBeforeKB"), MemBeforeKB);
-		Entry->SetNumberField(TEXT("memoryAfterKB"),  MemAfterKB);
-		Entry->SetNumberField(TEXT("freedBytes"),     BeforeBytes - (MemAfterKB * 1024 + MemAfterB));
+		Entry->SetStringField(TEXT("Mode"),          TEXT("Collect"));
+		Entry->SetNumberField(TEXT("MemoryBeforeKB"), MemBeforeKB);
+		Entry->SetNumberField(TEXT("MemoryAfterKB"),  MemAfterKB);
+		Entry->SetNumberField(TEXT("FreedBytes"),     BeforeBytes - (MemAfterKB * 1024 + MemAfterB));
 	}
-	else if (Mode == TEXT("stop"))
+	else if (Mode == TEXT("Stop"))
 	{
 		lua_gc(L, LUA_GCSTOP, 0);
-		Entry->SetStringField(TEXT("mode"),      TEXT("stop"));
-		Entry->SetNumberField(TEXT("memoryKB"),  MemBeforeKB);
+		Entry->SetStringField(TEXT("Mode"),      TEXT("Stop"));
+		Entry->SetNumberField(TEXT("MemoryKB"),  MemBeforeKB);
 	}
-	else if (Mode == TEXT("restart"))
+	else if (Mode == TEXT("Restart"))
 	{
 		lua_gc(L, LUA_GCRESTART, 0);
-		Entry->SetStringField(TEXT("mode"),      TEXT("restart"));
-		Entry->SetNumberField(TEXT("memoryKB"),  MemBeforeKB);
+		Entry->SetStringField(TEXT("Mode"),      TEXT("Restart"));
+		Entry->SetNumberField(TEXT("MemoryKB"),  MemBeforeKB);
 	}
-	else if (Mode == TEXT("count"))
+	else if (Mode == TEXT("Count"))
 	{
-		Entry->SetStringField(TEXT("mode"),        TEXT("count"));
-		Entry->SetNumberField(TEXT("memoryKB"),    MemBeforeKB);
-		Entry->SetNumberField(TEXT("memoryBytes"), BeforeBytes);
+		Entry->SetStringField(TEXT("Mode"),        TEXT("Count"));
+		Entry->SetNumberField(TEXT("MemoryKB"),    MemBeforeKB);
+		Entry->SetNumberField(TEXT("MemoryBytes"), BeforeBytes);
 	}
 	else
 	{
@@ -82,6 +82,6 @@ FCapabilityResult FGcRuntimeLuaCapability::Execute(const TSharedPtr<FJsonObject>
 	return R;
 }
 
-REGISTER_MCP_CAPABILITY(FGcRuntimeLuaCapability)
+REGISTER_MCP_CAPABILITY(FNexusGcRuntimeLuaCapability)
 
 #endif // WITH_UNLUA

@@ -11,8 +11,8 @@
 
 struct lua_State;
 
-/** get_runtime_lua_object — 读取运行时 UObject 的实例/类 Lua 表。 */
-class FGetRuntimeLuaObjectCapability : public FNexusRuntimeCapability
+/** GetRuntimeLuaObject — 读取运行时 UObject 的实例/类 Lua 表。 */
+class FNexusGetRuntimeLuaObjectCapability : public FNexusRuntimeCapability
 {
 protected:
 	virtual void BuildDefinition(FNexusCapabilityDefinition& Out) const override;

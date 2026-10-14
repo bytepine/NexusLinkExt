@@ -8,8 +8,8 @@
 
 #include "NexusCapability.h"
 
-/** get_asset_lua_binding — 查询 Blueprint 资产绑定的 Lua 文件路径。 */
-class FGetAssetLuaBindingCapability : public FNexusCapability
+/** GetAssetLuaBinding — 查询 Blueprint 资产绑定的 Lua 文件路径。 */
+class FNexusGetAssetLuaBindingCapability : public FNexusCapability
 {
 protected:
 	virtual void BuildDefinition(FNexusCapabilityDefinition& Out) const override;

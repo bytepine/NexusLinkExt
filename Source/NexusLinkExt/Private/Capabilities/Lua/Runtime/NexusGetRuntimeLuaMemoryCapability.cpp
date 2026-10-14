@@ -9,19 +9,19 @@
 #include "Utils/NexusLuaUtils.h"
 #include "NexusMcpTool.h"
 
-void FGetRuntimeLuaMemoryCapability::BuildDefinition(FNexusCapabilityDefinition& Out) const
+void FNexusGetRuntimeLuaMemoryCapability::BuildDefinition(FNexusCapabilityDefinition& Out) const
 {
-	Out.Name = TEXT("get_runtime_lua_memory");
-	Out.Description = TEXT("Report Lua VM heap usage (KB/bytes). Use with gc_runtime_lua.");
+	Out.Name = TEXT("GetRuntimeLuaMemory");
+	Out.Description = TEXT("Report Lua VM heap usage (KB/bytes). Use with GcRuntimeLua.");
 	Out.InputSchema = FNexusSchema::EmptyObject();
 	Out.Tags = {FNexusMcpTags::Readonly, FNexusMcpTags::Runtime };
-	Out.ExtraSearchKeywords = { TEXT("heap"), TEXT("usage"), TEXT("stats"), TEXT("ram"), TEXT("kb") };
-	Out.RelatedCapabilities = { TEXT("gc_runtime_lua") };
-	Out.Prerequisites = { TEXT("unlua"), TEXT("pie") };
+	Out.ExtraSearchKeywords = { TEXT("heap"), TEXT("Usage"), TEXT("stats"), TEXT("ram"), TEXT("kb") };
+	Out.RelatedCapabilities = { TEXT("GcRuntimeLua") };
+	Out.Prerequisites = { TEXT("unlua"), TEXT("PIE") };
 	Out.WhenToUse = TEXT("Check heap size before/after gc collect");
 }
 
-FCapabilityResult FGetRuntimeLuaMemoryCapability::Execute(const TSharedPtr<FJsonObject>& Arguments) const
+FCapabilityResult FNexusGetRuntimeLuaMemoryCapability::Execute(const TSharedPtr<FJsonObject>& Arguments) const
 {
 	FNexusMcpToolResult Tmp;
 	lua_State* L = FNexusLuaUtils::GetMainLuaState(Tmp);
@@ -33,12 +33,12 @@ FCapabilityResult FGetRuntimeLuaMemoryCapability::Execute(const TSharedPtr<FJson
 
 	FCapabilityResult R;
 	TSharedPtr<FJsonObject> Entry = MakeShared<FJsonObject>();
-	Entry->SetNumberField(TEXT("memoryKB"),    KBCount);
-	Entry->SetNumberField(TEXT("memoryBytes"), KBCount * 1024 + ByteRemainder);
+	Entry->SetNumberField(TEXT("MemoryKB"),    KBCount);
+	Entry->SetNumberField(TEXT("MemoryBytes"), KBCount * 1024 + ByteRemainder);
 	R.Entries.Add(MakeShared<FJsonValueObject>(Entry));
 	return R;
 }
 
-REGISTER_MCP_CAPABILITY(FGetRuntimeLuaMemoryCapability)
+REGISTER_MCP_CAPABILITY(FNexusGetRuntimeLuaMemoryCapability)
 
 #endif // WITH_UNLUA

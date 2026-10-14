@@ -12,7 +12,7 @@
 struct lua_State;
 
 /** manage_runtime_lua_gc — 控制 Lua GC（collect/stop/restart/count）。 */
-class FGcRuntimeLuaCapability : public FNexusRuntimeCapability
+class FNexusGcRuntimeLuaCapability : public FNexusRuntimeCapability
 {
 protected:
 	virtual void BuildDefinition(FNexusCapabilityDefinition& Out) const override;

@@ -9,18 +9,18 @@
 #include "Utils/NexusLuaUtils.h"
 #include "NexusMcpTool.h"
 
-void FHotReloadRuntimeLuaCapability::BuildDefinition(FNexusCapabilityDefinition& Out) const
+void FNexusHotReloadRuntimeLuaCapability::BuildDefinition(FNexusCapabilityDefinition& Out) const
 {
-	Out.Name = TEXT("hotreload_runtime_lua");
+	Out.Name = TEXT("HotReloadRuntimeLua");
 	Out.Description = TEXT("Hot-reload UnLua module (2.x, no PIE restart). UnLua 1.x returns error.");
 	Out.InputSchema = FNexusSchema::EmptyObject();
 	Out.Tags = {FNexusMcpTags::Write, FNexusMcpTags::Runtime };
 	Out.ExtraSearchKeywords = { TEXT("reload"), TEXT("refresh"), TEXT("module"), TEXT("unlua"), TEXT("update") };
-	Out.RelatedCapabilities = { TEXT("dofile_runtime_lua"), TEXT("eval_runtime_lua") };
-	Out.Prerequisites = { TEXT("unlua"), TEXT("pie") };
+	Out.RelatedCapabilities = { TEXT("DofileRuntimeLua"), TEXT("EvalRuntimeLua") };
+	Out.Prerequisites = { TEXT("unlua"), TEXT("PIE") };
 }
 
-FCapabilityResult FHotReloadRuntimeLuaCapability::Execute(const TSharedPtr<FJsonObject>& Arguments) const
+FCapabilityResult FNexusHotReloadRuntimeLuaCapability::Execute(const TSharedPtr<FJsonObject>& Arguments) const
 {
 	FCapabilityResult R;
 	TSharedPtr<FJsonObject> Entry = MakeShared<FJsonObject>();
@@ -44,10 +44,10 @@ FCapabilityResult FHotReloadRuntimeLuaCapability::Execute(const TSharedPtr<FJson
 	LuaEnv->HotReload();
 	const int32 MemAfterKB = lua_gc(L, LUA_GCCOUNT, 0);
 
-	Entry->SetNumberField(TEXT("memoryBeforeKB"), MemBeforeKB);
-	Entry->SetNumberField(TEXT("memoryAfterKB"),  MemAfterKB);
+	Entry->SetNumberField(TEXT("MemoryBeforeKB"), MemBeforeKB);
+	Entry->SetNumberField(TEXT("MemoryAfterKB"),  MemAfterKB);
 #else
-	Entry->SetStringField(TEXT("error"),
+	Entry->SetStringField(TEXT("Error"),
 		TEXT("hotreload is not supported on UnLua 1.X; restart the Lua environment manually or upgrade to UnLua 2.X"));
 #endif
 
@@ -55,6 +55,6 @@ FCapabilityResult FHotReloadRuntimeLuaCapability::Execute(const TSharedPtr<FJson
 	return R;
 }
 
-REGISTER_MCP_CAPABILITY(FHotReloadRuntimeLuaCapability)
+REGISTER_MCP_CAPABILITY(FNexusHotReloadRuntimeLuaCapability)
 
 #endif // WITH_UNLUA
