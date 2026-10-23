@@ -7,6 +7,10 @@
 
 ## [Unreleased]
 
+## [1.1.0-beta.1] - 2026-10-23
+
+> ⚠️ Pre-release，非生产环境使用。
+
 ### Changed
 
 - **破坏性**：Lua Capability 的工具 id 与字段改为 PascalCase，与 NexusLink 同一套命名。布尔字段加 `b` 前缀。
