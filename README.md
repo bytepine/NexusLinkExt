@@ -1,6 +1,10 @@
-# NexusLinkExt
+# NexusLinkExt — NexusLink 的 UnLua MCP 扩展
 
-[NexusLink](https://github.com/bytepine/NexusLink) 的可选插件 Capability。安装后注册进同一套 MCP，用 `SearchCapabilities` 发现；未安装时这些名字不会出现。
+**让 AI 调试 Unreal Engine 项目中的 UnLua 脚本。** NexusLinkExt 是 [NexusLink — Unreal Engine MCP](https://github.com/bytepine/NexusLink) 的可选扩展，提供运行时 Lua 调试和蓝图 Lua 绑定能力。
+
+[下载扩展](https://github.com/bytepine/NexusLinkExt/releases) · [NexusLink 安装指南](https://github.com/bytepine/NexusLink#快速开始) · [Fab 核心插件（NexusMCP）](https://www.fab.com/listings/60097027-d7a5-4f73-87f3-81edb1b6ef0b)
+
+本扩展需配合 NexusLink 与 UnLua 使用。安装后注册进同一套 MCP，用 `SearchCapabilities` 发现；未安装时这些名字不会出现。
 
 当前包含 **UnLua**：运行时 Lua 调试，以及蓝图 `UnLuaInterface` 绑定。工程里没有 UnLua 时，本插件不注册这些 Capability。
 

@@ -7,6 +7,10 @@
 
 ## [Unreleased]
 
+### Changed
+
+- 明确 NexusLinkExt 的 UnLua MCP 扩展定位，统一中英文首页与插件展示描述，补充核心插件安装及 Fab 入口。
+
 ## [1.1.0-beta.1] - 2026-10-23
 
 > ⚠️ Pre-release，非生产环境使用。

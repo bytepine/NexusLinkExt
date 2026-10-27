@@ -3,7 +3,7 @@
 	"Version": 1,
 	"VersionName": "0.0.0",
 	"FriendlyName": "NexusLinkExt",
-	"Description": "NexusLink capabilities for optional plugins. Runtime module NexusLinkExt, editor module NexusLinkExtEditor. UnLua capabilities live here.",
+	"Description": "UnLua MCP extension for NexusLink, the Unreal Engine MCP plugin. Adds runtime Lua debugging and Blueprint-to-Lua bindings for AI clients. Requires NexusLink and UnLua.",
 	"Category": "Other",
 	"CreatedBy": "byteyang",
 	"CreatedByURL": "https://github.com/bytepine",
