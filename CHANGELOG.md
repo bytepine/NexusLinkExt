@@ -9,7 +9,7 @@
 
 ### Changed
 
-- 明确 NexusLinkExt 的 UnLua MCP 扩展定位，统一中英文首页与插件展示描述，补充核心插件安装及 Fab 入口。
+- 明确 NexusLinkExt 的 UnLua MCP 扩展定位，统一中英文首页与插件展示描述，补充核心插件的 GitHub 安装入口。
 
 ## [1.1.0-beta.1] - 2026-10-23
 

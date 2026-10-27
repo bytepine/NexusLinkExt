@@ -2,7 +2,7 @@
 
 **Debug UnLua scripts in Unreal Engine with AI.** NexusLinkExt is an optional extension for [NexusLink — Unreal Engine MCP](https://github.com/bytepine/NexusLink), providing runtime Lua debugging and Blueprint-to-Lua bindings.
 
-[Download extension](https://github.com/bytepine/NexusLinkExt/releases) · [NexusLink setup](https://github.com/bytepine/NexusLink/blob/master/README.en.md#quick-start) · [Core plugin on Fab (NexusMCP)](https://www.fab.com/listings/60097027-d7a5-4f73-87f3-81edb1b6ef0b)
+[Download extension](https://github.com/bytepine/NexusLinkExt/releases) · [NexusLink setup](https://github.com/bytepine/NexusLink/blob/master/README.en.md#quick-start) · [Core plugin](https://github.com/bytepine/NexusLink)
 
 Requires NexusLink and UnLua. Once installed, its Capabilities register into the same MCP server; discover them with `SearchCapabilities`. They are absent when this plugin is not loaded.
 
