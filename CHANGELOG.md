@@ -10,6 +10,7 @@
 ### Changed
 
 - 明确 NexusLinkExt 的 UnLua MCP 扩展定位，统一中英文首页与插件展示描述，补充核心插件的 GitHub 安装入口。
+- 移除 Runtime / Editor 模块的 `PlatformAllowList` 与 `WhitelistPlatforms`，不再在插件描述文件中限定 Win64 / Mac；其他平台仍取决于 NexusLink、UnLua 与引擎兼容性。
 
 ## [1.1.0-beta.1] - 2026-10-23
 

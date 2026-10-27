@@ -19,16 +19,12 @@
 		{
 			"Name": "NexusLinkExt",
 			"Type": "Runtime",
-			"LoadingPhase": "Default",
-			"PlatformAllowList": [ "Win64", "Mac" ],
-			"WhitelistPlatforms": [ "Win64", "Mac" ]
+			"LoadingPhase": "Default"
 		},
 		{
 			"Name": "NexusLinkExtEditor",
 			"Type": "Editor",
-			"LoadingPhase": "Default",
-			"PlatformAllowList": [ "Win64", "Mac" ],
-			"WhitelistPlatforms": [ "Win64", "Mac" ]
+			"LoadingPhase": "Default"
 		}
 	],
 	"Plugins": [
