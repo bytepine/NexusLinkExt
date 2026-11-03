@@ -114,7 +114,8 @@ public:
 			int AbsIdx = (Index > 0) ? Index : (lua_gettop(L) + Index + 1);
 			lua_pushnil(L);
 			int Count = 0;
-			while (SafeLuaNext(L, AbsIdx) != 0 && Count < MaxEntries)
+			// 先检查截断上限，避免 lua_next 多压入一组键值，破坏调用方的栈。
+			while (Count < MaxEntries && SafeLuaNext(L, AbsIdx) != 0)
 			{
 				int KT = lua_type(L, -2);
 				int VT = lua_type(L, -1);
