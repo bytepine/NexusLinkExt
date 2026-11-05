@@ -7,6 +7,8 @@
 
 ## [Unreleased]
 
+## [1.1.1] - 2026-11-05
+
 ### Fixed
 
 - `GetAssetLuaBinding` 先按 UnLua 的 `GLuaSrcFullPath` 找绑定文件，再回退 `Content/Script`，并返回 `SearchedPaths`。
