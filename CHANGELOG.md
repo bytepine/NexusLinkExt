@@ -7,6 +7,11 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- `GetAssetLuaBinding` 先按 UnLua 的 `GLuaSrcFullPath` 找绑定文件，再回退 `Content/Script`，并返回 `SearchedPaths`。
+- `GetRuntimeLuaObject` 从 UnLua 2.x 的 `UnLua_ObjectMap` 和 1.x 的 `ObjectMap` 读取实例表。只有类表时写明缺字段不能当成实例上没有。
+
 ## [1.1.0] - 2026-11-03
 
 ### Changed

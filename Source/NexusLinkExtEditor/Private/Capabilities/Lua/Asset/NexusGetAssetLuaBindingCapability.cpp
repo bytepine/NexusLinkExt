@@ -14,7 +14,7 @@
 void FNexusGetAssetLuaBindingCapability::BuildDefinition(FNexusCapabilityDefinition& Out) const
 {
 	Out.Name = TEXT("GetAssetLuaBinding");
-	Out.Description = TEXT("Resolve BP-bound UnLua module. Returns bound/bFileExists; requires UnLua.");
+	Out.Description = TEXT("Resolve BP-bound UnLua module. Returns bBound/bFileExists/SearchedPaths. Uses the UnLua source root, then Content/Script.");
 	Out.InputSchema = FNexusSchema::Object()
 		.Required(TEXT("AssetPath"), FNexusSchema::Str(TEXT("Blueprint asset path")))
 		.Build();
@@ -56,23 +56,64 @@ FCapabilityResult FNexusGetAssetLuaBindingCapability::Execute(const TSharedPtr<F
 		return R;
 	}
 
-	const FString LuaAbsPath = FPaths::Combine(
-		FPaths::ProjectContentDir(), TEXT("Script"), ModuleName.Replace(TEXT("."), TEXT("/"))) + TEXT(".lua");
+	// UnLua 启动时把脚本根写进 GLuaSrcFullPath（LetsGo 会改到 Content/Script 以外）。
+	extern UNLUA_API FString GLuaSrcFullPath;
+	const FString RelativeLua = ModuleName.Replace(TEXT("."), TEXT("/")) + TEXT(".lua");
+	TArray<FString> Roots;
+	if (!GLuaSrcFullPath.IsEmpty())
+	{
+		Roots.Add(GLuaSrcFullPath);
+	}
+	Roots.Add(FPaths::Combine(FPaths::ProjectContentDir(), TEXT("Script")));
+
+	TArray<TSharedPtr<FJsonValue>> Searched;
+	FString LuaAbsPath;
+	for (const FString& Root : Roots)
+	{
+		FString Candidate = Root;
+		if (!Candidate.EndsWith(TEXT("/")) && !Candidate.EndsWith(TEXT("\\")))
+		{
+			Candidate += TEXT("/");
+		}
+		Candidate = FPaths::ConvertRelativePathToFull(Candidate + RelativeLua);
+		bool bSeen = false;
+		for (const TSharedPtr<FJsonValue>& Existing : Searched)
+		{
+			if (Existing.IsValid() && Existing->AsString().Equals(Candidate, ESearchCase::IgnoreCase))
+			{
+				bSeen = true;
+				break;
+			}
+		}
+		if (bSeen)
+		{
+			continue;
+		}
+		Searched.Add(MakeShared<FJsonValueString>(Candidate));
+		if (LuaAbsPath.IsEmpty() && FPaths::FileExists(Candidate))
+		{
+			LuaAbsPath = Candidate;
+		}
+	}
 
 	Entry->SetBoolField(TEXT("bBound"), true);
 	Entry->SetStringField(TEXT("ModuleName"), ModuleName);
-	Entry->SetStringField(TEXT("ExpectedLuaPath"), LuaAbsPath);
-
-	if (FPaths::FileExists(LuaAbsPath))
+	Entry->SetArrayField(TEXT("SearchedPaths"), Searched);
+	if (!LuaAbsPath.IsEmpty())
 	{
 		Entry->SetBoolField(TEXT("bFileExists"), true);
+		Entry->SetStringField(TEXT("ExpectedLuaPath"), LuaAbsPath);
 		Entry->SetStringField(TEXT("LuaFilePath"), LuaAbsPath);
 	}
 	else
 	{
 		Entry->SetBoolField(TEXT("bFileExists"), false);
+		if (Searched.Num() > 0)
+		{
+			Entry->SetStringField(TEXT("ExpectedLuaPath"), Searched[0]->AsString());
+		}
 		Entry->SetStringField(TEXT("Hint"),
-			TEXT("UnLua module registered but .lua missing on disk; check Content/Script or create file."));
+			TEXT("UnLua module registered but .lua was not found under the UnLua source root or Content/Script. See SearchedPaths."));
 	}
 
 	R.Entries.Add(MakeShared<FJsonValueObject>(Entry));

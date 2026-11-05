@@ -47,14 +47,14 @@ Do not send legacy keys. Script paths use `ScriptPath` (relative to `Content/Scr
 | `GetRuntimeLuaLoaded` | List `package.loaded` |
 | `GetRuntimeLuaStack` | Call stack; `Detail=locals\|upvalues\|all` |
 | `GetRuntimeLuaMetatable` | Dump the OOP class table along `__index` |
-| `GetRuntimeLuaObject` | Read the instance Lua table of a bound Actor/UObject |
+| `GetRuntimeLuaObject` | Read the instance Lua table of a bound Actor. UnLua 2.x uses `UnLua_ObjectMap`; 1.x uses `ObjectMap`. A class-table fallback says a missing field is not proof the instance lacks it |
 | `GetRuntimeLuaMemory` | Lua heap (KB/bytes) |
 
 ### Editor (`NexusLinkExtEditor`)
 
 | Capability | Description |
 |---|---|
-| `GetAssetLuaBinding` | Resolve the UnLua module bound to a Blueprint; returns `bBound` / `bFileExists` |
+| `GetAssetLuaBinding` | Resolve the UnLua module bound to a Blueprint. Looks up the UnLua source root, then `Content/Script`, and returns `bBound` / `bFileExists` / `SearchedPaths` |
 | `ManageAssetLuaBinding` | `Action=bind\|unbind` |
 
 Parameter schemas come from `SearchCapabilities`.

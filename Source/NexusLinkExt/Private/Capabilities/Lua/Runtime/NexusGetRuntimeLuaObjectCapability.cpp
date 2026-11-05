@@ -12,15 +12,31 @@
 #include "GameFramework/Actor.h"
 #include "NexusMcpTool.h"
 
-// UnLua 在 LUA_REGISTRYINDEX 中以 lightuserdata(UObject*) 为 key 关联 userdata wrapper；
-// 此处尝试取出其 uservalue（per-instance Lua 表）并压栈。
+// 把 UObject 的实例 Lua 表压栈。2.x 的表在 UnLua_ObjectMap，1.x 在 ObjectMap。
+// uservalue 只作最后兜底，LetsGo 1.x 的对象表不是 registry 上的 lightuserdata。
 static bool TryPushObjectLuaTable(lua_State* L, UObject* Object)
 {
 	const int32 StackTop = lua_gettop(L);
 
+#if UNLUA_VERSION_MAJOR >= 2
+	lua_getfield(L, LUA_REGISTRYINDEX, "UnLua_ObjectMap");
+#else
+	lua_getfield(L, LUA_REGISTRYINDEX, "ObjectMap");
+#endif
+	if (lua_istable(L, -1))
+	{
+		lua_pushlightuserdata(L, static_cast<void*>(Object));
+		lua_rawget(L, -2);
+		if (lua_istable(L, -1))
+		{
+			lua_remove(L, -2);
+			return true;
+		}
+	}
+	lua_settop(L, StackTop);
+
 	lua_pushlightuserdata(L, static_cast<void*>(Object));
 	lua_rawget(L, LUA_REGISTRYINDEX);
-
 	if (lua_isuserdata(L, -1))
 	{
 #if LUA_VERSION_NUM >= 502
@@ -106,6 +122,8 @@ FCapabilityResult FNexusGetRuntimeLuaObjectCapability::Execute(const TSharedPtr<
 			return R;
 		}
 		Entry->SetStringField(TEXT("TableSource"), TEXT("classTable"));
+		Entry->SetStringField(TEXT("Hint"),
+			TEXT("Instance Lua table was not found. Values come from the class table; a missing field does not mean the instance lacks it."));
 	}
 	else
 	{

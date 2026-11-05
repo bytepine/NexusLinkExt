@@ -47,14 +47,14 @@ English: [README.en.md](README.en.md).
 | `GetRuntimeLuaLoaded` | 列出 `package.loaded` |
 | `GetRuntimeLuaStack` | 调用栈；`Detail=locals\|upvalues\|all` |
 | `GetRuntimeLuaMetatable` | 沿 `__index` 转储 OOP 类表 |
-| `GetRuntimeLuaObject` | 读取已绑定 Actor/UObject 的实例 Lua 表 |
+| `GetRuntimeLuaObject` | 读取已绑定 Actor 的实例 Lua 表。2.x 走 `UnLua_ObjectMap`，1.x 走 `ObjectMap`；只有类表时会标明不能据此判断实例字段不存在 |
 | `GetRuntimeLuaMemory` | Lua 堆（KB/bytes） |
 
 ### 编辑器（`NexusLinkExtEditor`）
 
 | Capability | 说明 |
 |---|---|
-| `GetAssetLuaBinding` | 解析蓝图绑定的 UnLua 模块，返回 `bBound` / `bFileExists` |
+| `GetAssetLuaBinding` | 解析蓝图绑定的 UnLua 模块。先按 UnLua 脚本根找文件，再看 `Content/Script`，返回 `bBound` / `bFileExists` / `SearchedPaths` |
 | `ManageAssetLuaBinding` | `Action=bind\|unbind` |
 
 参数以 `SearchCapabilities` 返回的 schema 为准。
