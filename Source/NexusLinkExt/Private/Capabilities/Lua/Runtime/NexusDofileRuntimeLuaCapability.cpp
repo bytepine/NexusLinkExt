@@ -85,7 +85,7 @@ FCapabilityResult FNexusDofileRuntimeLuaCapability::Execute(const TSharedPtr<FJs
 
 	if (NumResults == 1)
 	{
-		Entry->SetStringField(TEXT("type"), UTF8_TO_TCHAR(lua_typename(L, lua_type(L, -1))));
+		Entry->SetStringField(TEXT("Type"), UTF8_TO_TCHAR(lua_typename(L, lua_type(L, -1))));
 		TSharedPtr<FJsonValue> Val = FNexusLuaUtils::LuaValueToJson(L, -1, 0);
 		Entry->SetField(TEXT("Value"), Val.IsValid() ? Val : MakeShared<FJsonValueNull>());
 	}

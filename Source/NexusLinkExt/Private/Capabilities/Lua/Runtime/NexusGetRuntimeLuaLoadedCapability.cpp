@@ -74,8 +74,8 @@ FCapabilityResult FNexusGetRuntimeLuaLoadedCapability::Execute(const TSharedPtr<
 					if (Modules.Num() < Limit)
 					{
 						TSharedRef<FJsonObject> Entry = MakeShared<FJsonObject>();
-						Entry->SetStringField(TEXT("name"), ModName);
-						Entry->SetStringField(TEXT("type"), UTF8_TO_TCHAR(lua_typename(L, ValType)));
+						Entry->SetStringField(TEXT("Name"), ModName);
+						Entry->SetStringField(TEXT("Type"), UTF8_TO_TCHAR(lua_typename(L, ValType)));
 						Modules.Add(MakeShared<FJsonValueObject>(Entry));
 					}
 				}

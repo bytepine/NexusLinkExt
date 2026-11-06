@@ -175,7 +175,7 @@ public:
 				TSharedRef<FJsonObject> Entry = MakeShared<FJsonObject>();
 				Entry->SetStringField(TEXT("Key"), Key);
 				int VT = lua_type(L, -1);
-				Entry->SetStringField(TEXT("type"), UTF8_TO_TCHAR(lua_typename(L, VT)));
+				Entry->SetStringField(TEXT("Type"), UTF8_TO_TCHAR(lua_typename(L, VT)));
 				switch (VT)
 				{
 				case LUA_TSTRING:  Entry->SetStringField(TEXT("Value"), UTF8_TO_TCHAR(lua_tostring(L, -1))); break;

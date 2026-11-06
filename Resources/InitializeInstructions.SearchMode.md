@@ -4,8 +4,8 @@ These capabilities exist only while this plugin is loaded. Discover them with `S
 
 **Runtime** (PIE/Game, UnLua ready): `EvalRuntimeLua` · `DofileRuntimeLua` · `GcRuntimeLua` · `HotReloadRuntimeLua` · `SetRuntimeLua` · `GetRuntimeLuaEnv` · `GetRuntimeLuaValue` · `GetRuntimeLuaLoaded` · `GetRuntimeLuaStack` · `GetRuntimeLuaMetatable` · `GetRuntimeLuaObject` · `GetRuntimeLuaMemory`. `HotReloadRuntimeLua` requires UnLua **2.x** (1.x returns an error).
 
-**Editor**: `GetAssetLuaBinding` first; if `bBound=false`, stop. Bind or unbind with `ManageAssetLuaBinding` (`Action=bind|unbind`).
+**Editor**: `GetAssetLuaBinding` first; if `bBound=false`, stop. Bind or unbind with `ManageAssetLuaBinding` (`Action=Bind|Unbind`).
 
-**Dangerous** (tag `dangerous`, off by default, same access mode as `ExecCommand`): `EvalRuntimeLua`, `DofileRuntimeLua`. Confirm mode requires `Reason`.
+**Dangerous** (tag `Dangerous`, off by default, same access mode as `ExecCommand`): `EvalRuntimeLua`, `DofileRuntimeLua`. Confirm mode requires `Reason`.
 
 **Parameters**: table paths use `LuaPath` (not `Path`). Script paths use `ScriptPath`, relative to `Content/Script/` (not `FilePath`).

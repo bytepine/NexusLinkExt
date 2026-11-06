@@ -23,9 +23,9 @@ static void CollectLocals(lua_State* L, lua_Debug& Ar, TSharedRef<FJsonObject>& 
 		if (LocalName[0] != '(')
 		{
 			TSharedRef<FJsonObject> Var = MakeShared<FJsonObject>();
-			Var->SetStringField(TEXT("name"), UTF8_TO_TCHAR(LocalName));
+			Var->SetStringField(TEXT("Name"), UTF8_TO_TCHAR(LocalName));
 		const int32 Type = lua_type(L, -1);
-		Var->SetStringField(TEXT("type"), UTF8_TO_TCHAR(lua_typename(L, Type)));
+		Var->SetStringField(TEXT("Type"), UTF8_TO_TCHAR(lua_typename(L, Type)));
 		switch (Type)
 		{
 		case LUA_TSTRING:  Var->SetStringField(TEXT("Value"), UTF8_TO_TCHAR(lua_tostring(L, -1))); break;
@@ -55,9 +55,9 @@ static void CollectUpvalues(lua_State* L, lua_Debug& Ar, TSharedRef<FJsonObject>
 	while ((UpName = lua_getupvalue(L, -1, UpIdx)) != nullptr)
 	{
 		TSharedRef<FJsonObject> Var = MakeShared<FJsonObject>();
-		Var->SetStringField(TEXT("name"), UTF8_TO_TCHAR(UpName));
+		Var->SetStringField(TEXT("Name"), UTF8_TO_TCHAR(UpName));
 		const int32 Type = lua_type(L, -1);
-		Var->SetStringField(TEXT("type"), UTF8_TO_TCHAR(lua_typename(L, Type)));
+		Var->SetStringField(TEXT("Type"), UTF8_TO_TCHAR(lua_typename(L, Type)));
 		switch (Type)
 		{
 		case LUA_TSTRING:  Var->SetStringField(TEXT("Value"), UTF8_TO_TCHAR(lua_tostring(L, -1))); break;
@@ -168,7 +168,7 @@ FCapabilityResult FNexusGetRuntimeLuaStackCapability::Execute(const TSharedPtr<F
 		if (Ar.currentline > 0)                   Frame->SetNumberField(TEXT("CurrentLine"),  Ar.currentline);
 		if (Ar.linedefined > 0)                   Frame->SetNumberField(TEXT("LineDefined"),  Ar.linedefined);
 		if (Ar.lastlinedefined > 0)               Frame->SetNumberField(TEXT("LastLineDefined"), Ar.lastlinedefined);
-		if (Ar.name)                              Frame->SetStringField(TEXT("name"),         UTF8_TO_TCHAR(Ar.name));
+		if (Ar.name)                              Frame->SetStringField(TEXT("Name"),         UTF8_TO_TCHAR(Ar.name));
 		if (Ar.namewhat && Ar.namewhat[0] != '\0') Frame->SetStringField(TEXT("NameWhat"),    UTF8_TO_TCHAR(Ar.namewhat));
 		if (Ar.what)                              Frame->SetStringField(TEXT("What"),         UTF8_TO_TCHAR(Ar.what));
 

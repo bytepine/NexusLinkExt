@@ -93,7 +93,7 @@ FCapabilityResult FNexusGetRuntimeLuaMetatableCapability::Execute(const TSharedP
 		{
 			TSharedRef<FJsonObject> KEntry = MakeShared<FJsonObject>();
 			KEntry->SetStringField(TEXT("Key"),  Key);
-			KEntry->SetStringField(TEXT("type"), UTF8_TO_TCHAR(lua_typename(L, lua_type(L, -1))));
+			KEntry->SetStringField(TEXT("Type"), UTF8_TO_TCHAR(lua_typename(L, lua_type(L, -1))));
 			Keys.Add(MakeShared<FJsonValueObject>(KEntry));
 		}
 		lua_pop(L, 1);

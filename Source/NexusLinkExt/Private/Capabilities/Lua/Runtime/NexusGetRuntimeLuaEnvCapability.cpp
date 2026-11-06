@@ -88,7 +88,7 @@ FCapabilityResult FNexusGetRuntimeLuaEnvCapability::Execute(const TSharedPtr<FJs
 		{
 			TSharedRef<FJsonObject> Entry = MakeShared<FJsonObject>();
 			Entry->SetStringField(TEXT("Key"),  Key);
-			Entry->SetStringField(TEXT("type"), UTF8_TO_TCHAR(lua_typename(L, lua_type(L, -1))));
+			Entry->SetStringField(TEXT("Type"), UTF8_TO_TCHAR(lua_typename(L, lua_type(L, -1))));
 			Keys.Add(MakeShared<FJsonValueObject>(Entry));
 		}
 		lua_pop(L, 1);
