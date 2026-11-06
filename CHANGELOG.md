@@ -7,6 +7,10 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- Shipping 不读取扩展指引文件，不注册或注销 MCP 指引。
+
 ## [1.1.1] - 2026-11-05
 
 ### Fixed

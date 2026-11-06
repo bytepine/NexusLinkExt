@@ -1,6 +1,9 @@
 // Copyright byteyang. All Rights Reserved.
 
 #include "NexusLinkExt.h"
+#include "NexusLinkBuildConfig.h"
+
+#if NEXUSLINK_WITH_SERVER
 #include "NexusInstructionRegistry.h"
 #include "Interfaces/IPluginManager.h"
 #include "Misc/FileHelper.h"
@@ -31,5 +34,12 @@ void FNexusLinkExtModule::ShutdownModule()
 {
 	FNexusInstructionRegistry::Get().Unregister(TEXT("NexusLinkExt"));
 }
+
+#else
+
+void FNexusLinkExtModule::StartupModule() {}
+void FNexusLinkExtModule::ShutdownModule() {}
+
+#endif
 
 IMPLEMENT_MODULE(FNexusLinkExtModule, NexusLinkExt)
