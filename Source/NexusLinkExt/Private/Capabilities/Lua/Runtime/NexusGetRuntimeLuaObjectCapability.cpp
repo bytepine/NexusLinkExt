@@ -66,7 +66,7 @@ void FNexusGetRuntimeLuaObjectCapability::BuildDefinition(FNexusCapabilityDefini
 		.Prop(TEXT("Limit"),         FNexusSchema::Int(TEXT("Max returned keys"), 100, 1, 500))
 		.Build();
 	Out.Tags = {FNexusMcpTags::Readonly, FNexusMcpTags::Runtime };
-	Out.ExtraSearchKeywords = { TEXT("instance"), TEXT("Actor"), TEXT("Fields"), TEXT("self"), TEXT("Data") };
+	Out.ExtraSearchKeywords = { TEXT("instance"), TEXT("Actor"), TEXT("Fields"), TEXT("self"), TEXT("Data"), TEXT("inspect") };
 	Out.RelatedCapabilities = { TEXT("GetRuntimeLuaEnv"), TEXT("GetAssetLuaBinding") };
 	Out.Prerequisites = { TEXT("unlua"), TEXT("PIE") };
 }
