@@ -55,7 +55,9 @@ Do not send legacy keys. Script paths use `ScriptPath` (relative to `Content/Scr
 | Capability | Description |
 |---|---|
 | `GetAssetLuaBinding` | Resolve the UnLua module bound to a Blueprint. Looks up the UnLua source root, then `Content/Script`, and returns `bBound` / `bFileExists` / `SearchedPaths` |
-| `ManageAssetLuaBinding` | `Action=bind\|unbind` |
+| `ManageAssetLuaBinding` | `Operations=[{Action:Bind\|Unbind, ModuleName:...}]`; Bind writes and reads back GetModuleName constants. Compile with `bCompile=true`, then verify with GetAssetLuaBinding |
+
+Bind refuses to overwrite linked return logic or inherited bindings. An omitted ModuleName is derived from the asset package path. `bModuleNameWritten` confirms the graph constant only; check compilation and Lua file existence separately. Save with `bSaveToDisk=true`.
 
 Parameter schemas come from `SearchCapabilities`.
 

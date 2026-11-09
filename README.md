@@ -55,7 +55,9 @@ English: [README.en.md](README.en.md).
 | Capability | 说明 |
 |---|---|
 | `GetAssetLuaBinding` | 解析蓝图绑定的 UnLua 模块。先按 UnLua 脚本根找文件，再看 `Content/Script`，返回 `bBound` / `bFileExists` / `SearchedPaths` |
-| `ManageAssetLuaBinding` | `Action=bind\|unbind` |
+| `ManageAssetLuaBinding` | `Operations=[{Action:Bind\|Unbind, ModuleName:...}]`；Bind 写入并回读 GetModuleName 常量，`bCompile=true` 后用 GetAssetLuaBinding 验证 |
+
+Bind 不覆盖已有动态连线或父类绑定逻辑；未传 ModuleName 时由资产包路径生成点分模块名。`bModuleNameWritten` 仅确认图中的返回常量已写入，编译结果和 Lua 文件存在性需分别检查。落盘使用 `bSaveToDisk=true`。
 
 参数以 `SearchCapabilities` 返回的 schema 为准。
 

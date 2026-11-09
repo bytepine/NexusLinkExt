@@ -17,7 +17,7 @@ public class NexusLinkExtEditor : ModuleRules
 		});
 		PrivateDependencyModuleNames.AddRange(new[]
 		{
-			"CoreUObject", "Engine", "UnrealEd",
+			"CoreUObject", "Engine", "UnrealEd", "BlueprintGraph",
 		});
 
 		string ProjectRoot = NexusLinkOptionalPlugins.FindProjectRoot(ModuleDirectory);
