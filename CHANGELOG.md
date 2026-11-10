@@ -7,11 +7,13 @@
 
 ## [Unreleased]
 
+## [1.1.2] - 2026-11-10
+
 ### Fixed
 
-- `ManageAssetLuaBinding` 的 Bind 写入并回读 `GetModuleName` 返回引脚，支持显式编译与重复绑定更新常量；拒绝覆盖动态连线或继承逻辑，失败不再仅回显请求模块名。
-- Lua 查询返回字段统一为 PascalCase，与 NexusLink 的 Name / Type 契约一致；补充 `Lua inspect` 的实例查询发现关键字，同步扩展握手指引。
-- Shipping 不读取扩展指引文件，不注册或注销 MCP 指引。
+- `ManageAssetLuaBinding` 正确写入并回读绑定模块名，支持显式编译与重复更新，保护动态连线和继承逻辑。
+- Lua 查询结果字段统一为 PascalCase，补充 `Lua inspect` 发现关键字和握手指引。
+- Shipping 不读取、注册或注销 MCP 扩展指引。
 
 ## [1.1.1] - 2026-11-05
 
