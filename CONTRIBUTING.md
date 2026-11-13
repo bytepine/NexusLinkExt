@@ -1,6 +1,12 @@
 # 为 NexusLinkExt 做贡献
 
+中文 | [English](CONTRIBUTING.en.md)
+
 用户安装见 [README.md](README.md)。Capability 基类与命名见 [NexusLink CapabilitySpec](https://github.com/bytepine/NexusLink/blob/master/Resources/CapabilitySpec.md) §2.1.1；扩展插件约定见同文 §2.1.2。
+
+## 文档
+
+所有维护文档必须提供完整的中英双语内容，中文和英文必须分别维护在独立文件中，并在顶部相互链接。README、贡献指南、测试指南、清单与 CHANGELOG 的新增及修改须同步两种语言；命令、路径、API 和版本号保持一致。生成文档须修改其数据源或生成器后再生成。
 
 ## 发版
 

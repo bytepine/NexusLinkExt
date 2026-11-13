@@ -23,7 +23,7 @@ Depends on [NexusLink](https://github.com/bytepine/NexusLink) and [UnLua](https:
 
 The sample [NexusUnreal](https://github.com/bytepine/NexusUnreal) mounts it as a git submodule (`Plugins/NexusLinkExt`). Clone that project with `--recurse-submodules`.
 
-Release zips are on [GitHub Releases](https://github.com/bytepine/NexusLinkExt/releases); the archive root is `NexusLinkExt/`. The source `VersionName` stays `0.0.0`. The version is the `VERSION` file and the `nexus-linkext-v*` tag. See [CONTRIBUTING.md](CONTRIBUTING.md).
+Release zips are on [GitHub Releases](https://github.com/bytepine/NexusLinkExt/releases); the archive root is `NexusLinkExt/`. The source `VersionName` stays `0.0.0`. The version is the `VERSION` file and the `nexus-linkext-v*` tag. See [CONTRIBUTING.en.md](CONTRIBUTING.en.md).
 
 Runtime Capabilities need PIE or a standalone Game, with UnLua ready. `HotReloadRuntimeLua` requires UnLua 2.x (1.x returns an error).
 
