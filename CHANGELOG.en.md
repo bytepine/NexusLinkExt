@@ -9,6 +9,10 @@ Version numbers follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- The UnLua handshake now covers discovery, binding checks and runtime prerequisites. Tool discovery supplies the parameters.
+
 ## [1.1.2] - 2026-11-10
 
 ### Fixed

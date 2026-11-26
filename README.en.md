@@ -68,7 +68,7 @@ New Capabilities still follow [CapabilitySpec](https://github.com/bytepine/Nexus
 - Runtime code goes in `NexusLinkExt`; editor assets go in `NexusLinkExtEditor`. New domains use `Private/Capabilities/<Domain>/`. Do not add another module.
 - End the `.cpp` with `REGISTER_MCP_CAPABILITY`. Define `WITH_*` only in the module that first links that optional plugin.
 - A dangerous Capability adds `dangerous` and `write` to `Out.Tags`. NexusLink treats that tag as the dangerous-capability switch. Do not register the name inside NexusLink.
-- When the capability surface changes, edit `Resources/InitializeInstructions.SearchMode.md` and `InitializeInstructions.MultiTool.md`. Startup registers both fragments; shutdown unregisters them. Do not list these Capabilities in NexusLink's own handshake text.
+- The module registers a short UnLua hint for each handshake mode and unregisters it at shutdown. Put a new capability’s purpose, parameters and prerequisites in its definition so clients can discover them on demand.
 
 The sample project's L1 suite is `Plugins/NexusLinkExtTestSuite` (Automation prefix `NexusLinkExt.`) and is not part of this repo.
 

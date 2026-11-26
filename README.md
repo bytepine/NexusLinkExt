@@ -68,7 +68,7 @@ Bind 不覆盖已有动态连线或父类绑定逻辑；未传 ModuleName 时由
 - 运行时放 `NexusLinkExt`，编辑器资产放 `NexusLinkExtEditor`。新域用 `Private/Capabilities/<域>/`，不要再加模块
 - `.cpp` 末尾 `REGISTER_MCP_CAPABILITY`。`WITH_*` 只在首次链接该可选插件的模块里定义
 - 危险 cap 在 `Out.Tags` 加上 `dangerous` 和 `write`。NexusLink 按这个标签做默认禁用和确认，不用登记名字
-- 改了能力面就改 `Resources/InitializeInstructions.SearchMode.md` 与 `InitializeInstructions.MultiTool.md`。模块启动时注册这两段，关闭时卸掉。不要改 NexusLink 的握手正文来列举这里的 cap
+- 模块按模式注册简短的 UnLua 握手提示，关闭时卸载。新增能力的用途、参数和前置条件写入能力定义，供客户端按需发现。
 
 示例工程的 L1 在 `Plugins/NexusLinkExtTestSuite`（Automation 前缀 `NexusLinkExt.`），不随本仓库分发。
 
